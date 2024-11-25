@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-// import router from './router';
+import router from './router';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 5002;
 
 app.use(cors());
 app.use(express.json());
-// app.use(router);
+app.use(router);
 
 mongoose
   .connect(mongodbUri, {})
