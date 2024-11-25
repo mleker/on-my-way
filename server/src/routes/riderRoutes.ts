@@ -1,5 +1,5 @@
 import express from 'express';
-import Rider from '../models/Rider';
+import Rider from '../models/rider';
 
 const router = express.Router();
 
