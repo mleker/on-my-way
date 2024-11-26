@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: any) => {
     gender: string
   ) => {
     try {
-      const res = await fetch(`${BASE_URL}/login`, {
+      const res = await fetch(`${BASE_URL}/reg`, {
         method: "POST",
         credentials: "include",
         mode: "cors",
@@ -122,3 +122,5 @@ export const AuthProvider = ({ children }: any) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+
+export default AuthContext;

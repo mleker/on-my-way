@@ -7,14 +7,13 @@ const initialState = {
   password: "",
   name: "",
   surname: "",
-  gender: ""
+  gender: "",
 };
 
 const Register = () => {
   const [state, setState] = useState(initialState);
   const { onRegister } = useAuth();
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
+  const handleChange = (value: string, name: string) => {
     setState((prevState) => ({
       ...prevState,
       [name]: value,
@@ -22,8 +21,14 @@ const Register = () => {
   };
 
   const register = async () => {
-    const res = await onRegister!(state.email, state.password, state.name, state.surname, state.gender);
-    console.log(res)
+    const res = await onRegister!(
+      state.email,
+      state.password,
+      state.name,
+      state.surname,
+      state.gender
+    );
+    console.log(res);
   };
 
   return (
@@ -32,31 +37,31 @@ const Register = () => {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          onChangeText={handleChange}
+          onChangeText={(text) => handleChange(text, "email")}
           value={state.email}
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
-          onChangeText={handleChange}
+          onChangeText={(text) => handleChange(text, "password")}
           value={state.password}
         />
         <TextInput
           style={styles.input}
           placeholder="Name"
-          onChangeText={handleChange}
+          onChangeText={(text) => handleChange(text, "name")}
           value={state.name}
         />
         <TextInput
           style={styles.input}
           placeholder="Surname"
-          onChangeText={handleChange}
+          onChangeText={(text) => handleChange(text, "surname")}
           value={state.surname}
         />
         <TextInput
           style={styles.input}
           placeholder="Gender"
-          onChangeText={handleChange}
+          onChangeText={(text) => handleChange(text, "gender")}
           value={state.gender}
         />
         <Button onPress={register} title="Sign up"></Button>
