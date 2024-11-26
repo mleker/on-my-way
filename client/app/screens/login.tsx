@@ -1,15 +1,14 @@
-import { View, Text, StyleSheet, TextInput, Button , Image} from "react-native";
+import { View, StyleSheet, TextInput, Button} from "react-native";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { onLogin, onRegister, authState } = useAuth();
+  const { onLogin, authState } = useAuth();
 
   const login = async () => {
-    const res = await onLogin!(email, password);
-    console.log(res)
+    await onLogin!(email, password);
   };
 
   return (
@@ -34,11 +33,6 @@ const Login = () => {
 };
 
 const styles = StyleSheet.create({
-  image: {
-    width: "50%",
-    height: "50%",
-    resizeMode: "contain",
-  },
   form: {
     gap: 10,
     width: "60%",

@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const SECRET_KEY = process.env.SECRET_KEY || "testin";
+const SECRET_KEY: string | undefined = process.env.SECRET_KEY;
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
@@ -37,7 +37,7 @@ export const createUser = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ ...req.body, password: hashedPassword });
     const savedUser = await newUser.save();
-    const token = jwt.sign({ id: savedUser._id }, SECRET_KEY, {
+    const token = jwt.sign({ id: savedUser._id }, SECRET_KEY as string, {
       expiresIn: "1h",
     });
     res.status(201).send({ message: "User created", token });
@@ -60,7 +60,9 @@ export const loginUser = async (req: Request, res: Response) => {
       res.status(401).send({ message: "Wrong password" });
       return;
     }
-    const token = jwt.sign({ id: user._id }, SECRET_KEY, { expiresIn: "1h" });
+    const token = jwt.sign({ id: user._id }, SECRET_KEY as string, {
+      expiresIn: "1h",
+    });
     res.status(200).send({ message: "Login successful", token });
   } catch (err) {
     res.status(500).send({ error: err, message: "Something went wrong" });
@@ -79,5 +81,15 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.send({ message: "user deleted" }).status(200);
   } catch (err) {
     res.status(500).send({ error: err, message: "somethings wrong" });
+  }
+};
+
+export const profile = async (req: Request, res: Response) => {
+  try {
+    const { _id, name, surname, email, gender } = req.body;
+    const user = { _id, name, surname, email, gender  };
+    res.status(200).send({ user, message: "here it is" });
+  } catch (error) {
+    res.status(404).send({ error, message: "Resource not found" });
   }
 };
