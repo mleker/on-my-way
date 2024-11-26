@@ -1,5 +1,5 @@
-import Driver from '../models/Driver';
-import Rider from '../models/Rider';
+import Driver from '../models/driver';
+import Rider from '../models/rider';
 
 export const matchRiderToDriver = async (riderId: string) => {
   const rider = await Rider.findById(riderId);

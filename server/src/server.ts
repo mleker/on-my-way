@@ -4,6 +4,7 @@ import driverRoutes from "./routes/driverRoutes";
 import userRoutes from "./routes/userRoutes";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cors from 'cors';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ const PORT = process.env.PORT || 3000;
 const mongodbUri: string = process.env.MONGODB_URI;
 
 const app = express();
+app.use(cors())
 app.use(express.json());
 
 // Routes
