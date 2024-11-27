@@ -14,8 +14,8 @@ interface IAuthProps {
     password: string,
     name: string,
     surname: string,
-  ) => Promise<void>;
-  onLogout?: () => Promise<void>;
+  ) => Promise<any>;
+  onLogout?: () => Promise<any>;
   onProfile?: (token: string) => Promise<any>;
 }
 

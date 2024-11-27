@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/AuthContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Home from "./screens/Home";
+import Home from "./screens/home";
 import LandingScreen from "./screens/Start";
-import SignUpScreen from "./screens/Register";
-import LoginScreen from "./screens/Login";
+import SignUpScreen from "./screens/register";
+import LoginScreen from "./screens/login";
 import "../global.css";
 
 const Stack = createNativeStackNavigator();
