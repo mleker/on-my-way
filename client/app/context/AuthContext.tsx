@@ -1,5 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
+import dotenv from 'dotenv'
+
+
 
 export interface IAuthState {
   token: string | null;
@@ -21,7 +24,7 @@ interface IAuthProps {
 }
 
 const TOKEN_KEY = "testers";
-export const BASE_URL = "http://192.168.0.102:3000/api/users";
+const BASE_URL: string | undefined = process.env.BASE_URL;
 const AuthContext = createContext<IAuthProps>({});
 
 export const AuthProvider = ({ children }: any) => {

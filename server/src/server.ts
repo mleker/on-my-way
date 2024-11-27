@@ -1,10 +1,10 @@
 import express from "express";
-import riderRoutes from "./routes/riderRoutes";
-import driverRoutes from "./routes/driverRoutes";
 import userRoutes from "./routes/userRoutes";
+import requestRoutes from "./routes/requestRoutes";
+import rideRoutes from "./routes/rideRoutes";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import cors from 'cors';
+import cors from "cors";
 
 dotenv.config();
 
@@ -16,13 +16,13 @@ const PORT = process.env.PORT || 3000;
 const mongodbUri: string = process.env.MONGODB_URI;
 
 const app = express();
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api/riders", riderRoutes);
-app.use("/api/drivers", driverRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/requests", requestRoutes);
+app.use("/api/rides", rideRoutes);
 
 mongoose
   .connect(mongodbUri, {})

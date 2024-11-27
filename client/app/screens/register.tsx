@@ -1,91 +1,23 @@
-import { View, Text, StyleSheet, TextInput, Button } from "react-native";
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-
-const initialState = {
-  email: "",
-  password: "",
-  name: "",
-  surname: "",
-  gender: "",
-};
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import RegistrationForm from "@/components/RegistrationForm";
+import React, {useState} from "react";
 
 const Register = () => {
-  const [state, setState] = useState(initialState);
-  const { onRegister } = useAuth();
-  const handleChange = (value: string, name: string) => {
-    setState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const register = async () => {
-    const res = await onRegister!(
-      state.email,
-      state.password,
-      state.name,
-      state.surname,
-      state.gender
-    );
-    console.log(res);
-  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          onChangeText={(text) => handleChange(text, "email")}
-          value={state.email}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          onChangeText={(text) => handleChange(text, "password")}
-          value={state.password}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Name"
-          onChangeText={(text) => handleChange(text, "name")}
-          value={state.name}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Surname"
-          onChangeText={(text) => handleChange(text, "surname")}
-          value={state.surname}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Gender"
-          onChangeText={(text) => handleChange(text, "gender")}
-          value={state.gender}
-        />
-        <Button onPress={register} title="Sign up"></Button>
-      </View>
+      <RegistrationForm></RegistrationForm>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  form: {
-    gap: 10,
-    width: "60%",
-  },
-  input: {
-    height: 44,
-    borderWidth: 1,
-    borderRadius: 4,
-    padding: 10,
-    backgroundColor: "#fff",
-  },
   container: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    width: "100%",
   },
+
 });
 
 export default Register;
