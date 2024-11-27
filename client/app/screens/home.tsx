@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import React, { useEffect, useState } from "react";
 
@@ -7,7 +7,6 @@ interface IUser {
   name: string;
   surname: string;
   email: string;
-  gender: string;
 }
 
 const Home = () => {
@@ -24,17 +23,11 @@ const Home = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View>
       <Text>Helo {user?.name}</Text>
       <Text>email: {user?.email}</Text>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    width: "100%",
-  },
-});
 export default Home;

@@ -8,15 +8,6 @@ dotenv.config();
 
 const SECRET_KEY: string | undefined = process.env.SECRET_KEY;
 
-export const getUsers = async (req: Request, res: Response) => {
-  try {
-    const users = await User.find({});
-    res.send(users).status(200);
-  } catch (err) {
-    res.status(500).send({ error: err, message: "somethings wrong" });
-  }
-};
-
 export const createUser = async (req: Request, res: Response) => {
   const { password, email } = req.body;
 
@@ -84,7 +75,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export const profile = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   try {
     const { _id, name, surname, email, gender } = req.body;
     const user = { _id, name, surname, email, gender  };

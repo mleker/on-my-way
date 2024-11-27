@@ -1,8 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
-import dotenv from 'dotenv'
-
-
 
 export interface IAuthState {
   token: string | null;
@@ -17,14 +14,13 @@ interface IAuthProps {
     password: string,
     name: string,
     surname: string,
-    gender: string
-  ) => Promise<any>;
-  onLogout?: () => Promise<any>;
+  ) => Promise<void>;
+  onLogout?: () => Promise<void>;
   onProfile?: (token: string) => Promise<any>;
 }
 
 const TOKEN_KEY = "testers";
-const BASE_URL: string | undefined = process.env.BASE_URL;
+const BASE_URL = process.env.BASE_URL;
 const AuthContext = createContext<IAuthProps>({});
 
 export const AuthProvider = ({ children }: any) => {
@@ -48,7 +44,6 @@ export const AuthProvider = ({ children }: any) => {
     password: string,
     name: string,
     surname: string,
-    gender: string
   ) => {
     try {
       const res = await fetch(`${BASE_URL}/reg`, {
@@ -56,7 +51,7 @@ export const AuthProvider = ({ children }: any) => {
         credentials: "include",
         mode: "cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, surname, gender }),
+        body: JSON.stringify({ email, password, name, surname }),
       }).then((res) => res.json());
       if (res.token) {
         const { token } = res;
@@ -77,7 +72,7 @@ export const AuthProvider = ({ children }: any) => {
         mode: "cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-      }).then((res) => res.json());
+      }).then((res) => res.json()).catch((err) => console.log(err));
       if (res.token) {
         const { token } = res;
         setAuthState({ token: token, authenticated: true });

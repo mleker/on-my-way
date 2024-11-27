@@ -2,17 +2,18 @@ import React, { useState } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/AuthContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Home from "./screens/home";
-import Login from "./screens/login";
-import { Button } from "react-native";
-import Register from "./screens/register";
+import Home from "./screens/Home";
+import LandingScreen from "./screens/Start";
+import SignUpScreen from "./screens/Register";
+import LoginScreen from "./screens/Login";
+import "../global.css";
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
     <AuthProvider>
-      <Layout></Layout>
+      <Layout />
     </AuthProvider>
   );
 };
@@ -20,40 +21,18 @@ const App = () => {
 export default App;
 
 export const Layout = () => {
-  const { authState, onLogout } = useAuth();
-  const [state, setState] = useState(0);
+  const { authState } = useAuth();
+
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       {authState?.authenticated ? (
-        <Stack.Screen
-          name="Home"
-          component={Home}
-          options={{
-            headerRight: () => (
-              <Button onPress={onLogout} title="Sign out"></Button>
-            ),
-          }}
-        ></Stack.Screen>
-      ) : state === 0 ? (
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{
-            headerRight: () => (
-              <Button onPress={() => setState(1)} title="register"></Button>
-            ),
-          }}
-        ></Stack.Screen>
+        <Stack.Screen name="Home" component={Home} />
       ) : (
-        <Stack.Screen
-          name="Register"
-          component={Register}
-          options={{
-            headerRight: () => (
-              <Button onPress={() => setState(0)} title="login"></Button>
-            ),
-          }}
-        ></Stack.Screen>
+        <>
+          <Stack.Screen name="Landing" component={LandingScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+        </>
       )}
     </Stack.Navigator>
   );

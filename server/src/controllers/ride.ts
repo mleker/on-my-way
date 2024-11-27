@@ -44,7 +44,7 @@ export const deleteRide = async (req: Request, res: Response) => {
   }
 };
 
-export const acceptRide = async (req: Request, res: Response) => {
+export const startRide = async (req: Request, res: Response) => {
   const { driverId } = req.body;
   try {
     const ride = await Ride.findOne({ driverId });

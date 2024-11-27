@@ -21,7 +21,7 @@ export const authMiddleware = async (
     const { id } = jwt.verify(token, SECRET_KEY as string) as { id: string };
     const user = await User.findOne({ _id: id });
     if (!user) {
-      res.status(401).send({ message: "no usir" });
+      res.status(401).send({ message: "no user found" });
       return;
     }
     req.body = user;
