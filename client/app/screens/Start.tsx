@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
-// Screen 1: Landing Screen
 const LandingScreen = ({ navigation }: any) => {
   return (
     <View className="flex-1 items-center justify-center bg-white">

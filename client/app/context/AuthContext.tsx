@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
-
 export interface IAuthState {
   token: string | null;
   authenticated: boolean | null;
@@ -13,15 +12,15 @@ interface IAuthProps {
     email: string,
     password: string,
     name: string,
-    surname: string,
+    surname: string
   ) => Promise<any>;
   onLogout?: () => Promise<any>;
   onProfile?: (token: string) => Promise<any>;
 }
 
 const TOKEN_KEY = "testers";
-const BASE_URL = process.env.BASE_URL;
 const AuthContext = createContext<IAuthProps>({});
+const BASE_URL = "http://192.168.0.102:3000/api/users";
 
 export const AuthProvider = ({ children }: any) => {
   const [authState, setAuthState] = useState<IAuthState>({
@@ -43,7 +42,7 @@ export const AuthProvider = ({ children }: any) => {
     email: string,
     password: string,
     name: string,
-    surname: string,
+    surname: string
   ) => {
     try {
       const res = await fetch(`${BASE_URL}/reg`, {

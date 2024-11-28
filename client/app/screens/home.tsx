@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Button } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import React, { useEffect, useState } from "react";
 
@@ -10,7 +10,7 @@ interface IUser {
 }
 
 const Home = () => {
-  const { authState, onProfile } = useAuth();
+  const { authState, onProfile, onLogout } = useAuth();
   const [user, setUser] = useState<IUser | null>(null);
 
   useEffect(() => {
@@ -22,10 +22,15 @@ const Home = () => {
     profile();
   }, []);
 
+  const logout = async () => {
+    await onLogout!();
+  }
+
   return (
     <View>
       <Text>Helo {user?.name}</Text>
       <Text>email: {user?.email}</Text>
+      <Button title="sign out" onPress={logout}></Button>
     </View>
   );
 };
