@@ -1,11 +1,17 @@
-import { View, StyleSheet, TextInput, Button} from "react-native";
 import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Text,
+} from "react-native";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { onLogin, authState } = useAuth();
+  const { onLogin } = useAuth();
 
   const login = async () => {
     await onLogin!(email, password);
@@ -13,40 +19,76 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.logoContainer}>
+        <Text style={styles.logoText}>On My Way</Text>
+      </View>
       <View style={styles.form}>
         <TextInput
           style={styles.input}
           placeholder="Email"
-          onChangeText={(text: string) => setEmail(text)}
+          placeholderTextColor="#9CA3AF"
+          onChangeText={setEmail}
           value={email}
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
-          onChangeText={(text: string) => setPassword(text)}
+          placeholderTextColor="#9CA3AF"
+          secureTextEntry
+          onChangeText={setPassword}
           value={password}
         />
-        <Button onPress={login} title="Sign in"></Button>
+        <TouchableOpacity style={styles.button} onPress={login}>
+          <Text style={styles.buttonText}>Sign In</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#000000",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  logoContainer: {
+    marginBottom: 40,
+  },
+  logoText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
   form: {
-    gap: 10,
-    width: "60%",
+    width: "100%",
+    maxWidth: 400,
+    paddingHorizontal: 16,
+    gap: 20,
   },
   input: {
-    height: 44,
+    height: 48,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: "#000000",
     borderWidth: 1,
-    borderRadius: 4,
-    padding: 10,
-    backgroundColor: "#fff",
+    borderColor: "#D1D5DB",
   },
-  container: {
+  button: {
+    backgroundColor: "#000000",
+    borderRadius: 8,
+    paddingVertical: 12,
     alignItems: "center",
-    width: "100%",
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
 });
 

@@ -9,9 +9,15 @@ const FinishRideScreen: React.FC = ({ navigation }: any) => {
   const [distance, setDistance] = useState<number | null>(null);
   const [time, setTime] = useState<number | null>(null);
 
+  // Mock locations for Berlin Airport and Kreuzberg
   const dropOffLocation = {
-    latitude: 52.4934, // Example drop-off: Kreuzberg, Berlin
+    latitude: 52.4934, // Kreuzberg, Berlin
     longitude: 13.4233,
+  };
+
+  const driverLocation = {
+    latitude: 52.5597, // Berlin Airport
+    longitude: 13.2877,
   };
 
   useEffect(() => {
@@ -22,13 +28,12 @@ const FinishRideScreen: React.FC = ({ navigation }: any) => {
         return;
       }
 
-      const currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation.coords);
+      setLocation(driverLocation); // Using mock driver's location
 
       // Calculate distance and time
       const distanceToDropOff = calculateDistance(
-        currentLocation.coords.latitude,
-        currentLocation.coords.longitude,
+        driverLocation.latitude,
+        driverLocation.longitude,
         dropOffLocation.latitude,
         dropOffLocation.longitude
       );
@@ -76,8 +81,8 @@ const FinishRideScreen: React.FC = ({ navigation }: any) => {
             initialRegion={{
               latitude: location.latitude,
               longitude: location.longitude,
-              latitudeDelta: 0.05,
-              longitudeDelta: 0.05,
+              latitudeDelta: 0.1,
+              longitudeDelta: 0.1,
             }}
           >
             <Marker
@@ -133,7 +138,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     padding: 16,
     borderRadius: 8,
-    margin: 16,
+    marginHorizontal: 16,
+    marginBottom: 16, // Added margin-bottom for better spacing
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -151,6 +157,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#000000",
     padding: 16,
     marginHorizontal: 16,
+    marginBottom: 16, // Ensure spacing from the bottom
     borderRadius: 8,
     alignItems: "center",
   },
