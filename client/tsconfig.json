@@ -3,10 +3,10 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+      "@/*": ["./*"]
+    },
+    "typeRoots": ["node_modules/@types"],
+    "types": ["expo","react", "react-native", "@react-navigation/native"]
   },
   "include": [
     "**/*.ts",
