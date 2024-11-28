@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,11 @@ import {
   StyleSheet,
   FlatList,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import { useRoute, useNavigation } from "@react-navigation/native"; // Added useNavigation
-import { Ionicons, MaterialIcons } from "@expo/vector-icons"; // Added MaterialIcons for directions
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 interface RouteParams {
   from: string;
@@ -26,9 +27,10 @@ interface User {
 
 const RideStatus: React.FC = () => {
   const route = useRoute();
-  const navigation = useNavigation(); // Used for navigation
+  const navigation = useNavigation();
   const { from, to } = route.params as RouteParams;
 
+  const [isSearching, setIsSearching] = useState(true); // Added state for searching
   const [riders, setRiders] = useState<User[]>([
     {
       id: "1",
@@ -45,9 +47,18 @@ const RideStatus: React.FC = () => {
       time: "6 MIN AWAY",
     },
   ]);
-
   const [selectedRider, setSelectedRider] = useState<string | null>(null);
   const [rideInProgress, setRideInProgress] = useState(false);
+
+  useEffect(() => {
+    if (isSearching) {
+      // Simulate a delay for the "searching" process
+      const timeout = setTimeout(() => {
+        setIsSearching(false);
+      }, 5000); // 5 seconds delay
+      return () => clearTimeout(timeout); // Clean up timeout
+    }
+  }, [isSearching]);
 
   const handleSelectRider = (id: string) => {
     setSelectedRider(id);
@@ -58,6 +69,7 @@ const RideStatus: React.FC = () => {
     Alert.alert("Ride Cancelled", "Your ride has been cancelled.");
     setSelectedRider(null);
     setRideInProgress(false);
+    navigation.navigate("Home"); // Navigate back to Home
   };
 
   const handleDirections = () => {
@@ -77,7 +89,6 @@ const RideStatus: React.FC = () => {
     navigation.navigate("FinishRide");
   };
 
-  // Get selected rider's data
   const selectedRiderData = riders.find((rider) => rider.id === selectedRider);
 
   return (
@@ -87,19 +98,30 @@ const RideStatus: React.FC = () => {
         from {from} to {to}
       </Text>
 
-      {rideInProgress ? (
+      {isSearching ? (
+        <View style={styles.searchingContainer}>
+          <ActivityIndicator size="large" color="#000000" />
+          <Text style={styles.searchingText}>Searching for a rider...</Text>
+          <View style={styles.cancelButtonContainer}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={handleCancelRide}
+            >
+              <Text style={styles.cancelButtonText}>CANCEL RIDE</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : rideInProgress ? (
         <>
-          {/* Map with Marker for the selected rider */}
           <MapView
             style={styles.map}
             initialRegion={{
-              latitude: 52.520008, // Latitude for Berlin
-              longitude: 13.404954, // Longitude for Berlin
+              latitude: 52.520008,
+              longitude: 13.404954,
               latitudeDelta: 0.1,
               longitudeDelta: 0.1,
             }}
           >
-            {/* Driver's location */}
             <Marker
               coordinate={{
                 latitude: 52.520008,
@@ -109,11 +131,10 @@ const RideStatus: React.FC = () => {
               description="Your current location"
               pinColor="blue"
             />
-            {/* Selected Rider's location */}
             {selectedRiderData && (
               <Marker
                 coordinate={{
-                  latitude: 52.499508, // Example pickup coordinates
+                  latitude: 52.499508,
                   longitude: 13.397634,
                 }}
                 title={selectedRiderData.name}
@@ -121,24 +142,21 @@ const RideStatus: React.FC = () => {
                 pinColor="green"
               />
             )}
-            {/* Polyline for route */}
             <Polyline
               coordinates={[
-                { latitude: 52.520008, longitude: 13.404954 }, // Driver's location
-                { latitude: 52.499508, longitude: 13.397634 }, // Rider's location
+                { latitude: 52.520008, longitude: 13.404954 },
+                { latitude: 52.499508, longitude: 13.397634 },
               ]}
               strokeColor="#0000FF"
               strokeWidth={3}
             />
           </MapView>
 
-          {/* Ride in Progress Details */}
           <View style={styles.rideInProgress}>
             <Text style={styles.rideInProgressText}>Selected Rider</Text>
             <Text style={styles.rideInProgressSubText}>
               You are driving with {selectedRiderData?.name}
             </Text>
-            {/* Directions, Chat, and Call Buttons */}
             <View style={styles.contactButtons}>
               <TouchableOpacity
                 style={styles.contactButton}
@@ -165,16 +183,15 @@ const RideStatus: React.FC = () => {
             </View>
           </View>
 
-          {/* Start and Cancel Buttons */}
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity
               style={styles.startButton}
-              onPress={handleStartRide} // Navigate to FinishRide
+              onPress={handleStartRide}
             >
               <Text style={styles.startButtonText}>START RIDE</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.cancelButton}
+              style={styles.cancelButtonSecondary}
               onPress={handleCancelRide}
             >
               <Text style={styles.cancelButtonText}>CANCEL RIDE</Text>
@@ -200,14 +217,6 @@ const RideStatus: React.FC = () => {
                 </Text>
                 <Text style={styles.riderTime}>{item.time}</Text>
               </View>
-              <TouchableOpacity
-                style={styles.chatIconContainer}
-                onPress={() =>
-                  Alert.alert("Chat", `Start chatting with ${item.name}`)
-                }
-              >
-                <Ionicons name="chatbubble-outline" size={24} color="#FFFFFF" />
-              </TouchableOpacity>
             </TouchableOpacity>
           )}
         />
@@ -235,6 +244,45 @@ const styles = StyleSheet.create({
     color: "#555555",
     marginBottom: 16,
   },
+  searchingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  searchingText: {
+    fontSize: 16,
+    color: "#555555",
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  cancelButtonContainer: {
+    position: "absolute",
+    bottom: 50,
+    width: "100%",
+    paddingHorizontal: 16,
+  },
+  cancelButton: {
+    backgroundColor: "#FF0000",
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    width: "100%",
+  },
+  cancelButtonSecondary: {
+    flex: 1,
+    backgroundColor: "#FF0000",
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    marginLeft: 8,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
   map: {
     flex: 1,
     height: 300,
@@ -250,7 +298,7 @@ const styles = StyleSheet.create({
   },
   selectedRiderCard: {
     borderWidth: 2,
-    borderColor: "#FFD700", // Highlight with gold border when selected
+    borderColor: "#FFD700",
   },
   riderName: {
     fontSize: 16,
@@ -266,14 +314,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#FFFFFF",
     marginTop: 4,
-  },
-  chatIconContainer: {
-    position: "absolute",
-    bottom: 8,
-    right: 8,
-    backgroundColor: "#333333",
-    borderRadius: 16,
-    padding: 8,
   },
   rideInProgress: {
     padding: 16,
@@ -307,6 +347,7 @@ const styles = StyleSheet.create({
   actionButtonsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingHorizontal: 16,
     marginTop: 16,
   },
   startButton: {
@@ -318,19 +359,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   startButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: "#FF0000",
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    marginLeft: 8,
-  },
-  cancelButtonText: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#FFFFFF",
