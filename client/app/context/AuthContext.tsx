@@ -20,7 +20,8 @@ interface IAuthProps {
 
 const TOKEN_KEY = "testers";
 const AuthContext = createContext<IAuthProps>({});
-const BASE_URL = "http://192.168.0.102:3000/api/users";
+
+const BASE_URL = "http://192.168.178.24:3000/api/users";
 
 export const AuthProvider = ({ children }: any) => {
   const [authState, setAuthState] = useState<IAuthState>({
