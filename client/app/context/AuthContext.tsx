@@ -18,7 +18,7 @@ interface IAuthProps {
   onProfile?: (token: string) => Promise<any>;
 }
 
-const TOKEN_KEY = "tester";
+const TOKEN_KEY = "tester2";
 const AuthContext = createContext<IAuthProps>({});
 
 const BASE_URL = "http://192.168.178.24:3000/api/users";

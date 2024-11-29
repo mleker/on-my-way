@@ -10,6 +10,7 @@ import RequestRide from "./screens/RequestRide";
 import RequestStatus from './screens/RequestStatus';
 import RideStatus from "./screens/RideStatus";
 import Register from "./screens/SignUp";
+import SignUp from './screens/SignUp';
 
 const Stack = createNativeStackNavigator();
 const SIGN_OUT = "SIGN OUT";
@@ -91,13 +92,6 @@ const Layout = () => {
               headerRight: () => renderHeaderRight(SIGN_OUT),
             }}
           />
-          <Stack.Screen
-            name="FinishRide"
-            component={FinishRide}
-            options={{
-              headerRight: () => renderHeaderRight(SIGN_OUT),
-            }}
-          />
         </>
       ) : (
         authScreen === "login" ? (
@@ -106,13 +100,13 @@ const Layout = () => {
             component={Login}
             options={{
               headerRight: () =>
-                renderHeaderRight("Register", toggleAuthScreen),
+                renderHeaderRight("Sign up", toggleAuthScreen),
             }}
           />
         ) : (
           <Stack.Screen
-            name="Register"
-            component={Register}
+            name="SignUp"
+            component={SignUp}
             options={{
               headerRight: () =>
                 renderHeaderRight("Login", toggleAuthScreen),
