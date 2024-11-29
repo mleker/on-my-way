@@ -9,7 +9,7 @@ const initialState = {
   surname: "",
 };
 
-const SignUpScreen = ({ navigation }: any) => {
+const SignUp = ({ navigation }: any) => {
   const [state, setState] = useState(initialState);
   const { onRegister } = useAuth();
   const handleChange = (value: string, name: string) => {
@@ -83,4 +83,4 @@ const SignUpScreen = ({ navigation }: any) => {
   );
 };
 
-export default SignUpScreen;
+export default SignUp;

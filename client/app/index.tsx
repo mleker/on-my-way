@@ -6,7 +6,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import CreateRide from "./screens/CreateRide";
 import Landing from "./screens/Landing";
 import Login from "./screens/Login";
-import Register from "./screens/Register";
+import Register from "./screens/SignUp";
 import RequestRide from "./screens/RequestRide";
 import RideStatus from "./screens/RideStatus";
 import RequestStatus from './screens/RequestStatus';
@@ -23,19 +23,31 @@ const App = () => {
 
 const Layout = () => {
   const { authState, onLogout } = useAuth();
-  const [state, setState] = useState(0);
+  const [authScreen, setAuthScreen] = useState<"login" | "register">("register");
+
+  const renderHeaderRight = (title: string, callback?: () => void) => {
+    return (
+      <Button
+        onPress={callback || onLogout}
+        title={callback ? title : "Sign out"}
+      />
+    );
+  };
+
+  const toggleAuthScreen = () => {
+    setAuthScreen((prevScreen) => (prevScreen === "login" ? "register" : "login"));
+  };
 
   return (
     <Stack.Navigator>
-      {/* If authenticated, show authenticated screens */}
-      {!authState?.authenticated ? (
+      {authState?.authenticated ? (
         <>
           <Stack.Screen
             name="Landing"
             component={Landing}
             options={{
               title: "Landing",
-              headerRight: () => <Button onPress={onLogout} title="Sign out" />,
+              headerRight: () => renderHeaderRight("Sign out"),
             }}
           />
           <Stack.Screen
@@ -43,7 +55,7 @@ const Layout = () => {
             component={CreateRide}
             options={{
               title: "Create Ride",
-              headerRight: () => <Button onPress={onLogout} title="Sign out" />,
+              headerRight: () => renderHeaderRight("Sign out"),
             }}
           />
           <Stack.Screen
@@ -51,7 +63,7 @@ const Layout = () => {
             component={RequestRide}
             options={{
               title: "Request Ride",
-              headerRight: () => <Button onPress={onLogout} title="Sign out" />,
+              headerRight: () => renderHeaderRight("Sign out"),
             }}
           />
           <Stack.Screen
@@ -59,7 +71,7 @@ const Layout = () => {
             component={RequestStatus}
             options={{
               title: "Request Status",
-              headerRight: () => <Button onPress={onLogout} title="Sign out" />,
+              headerRight: () => renderHeaderRight("Sign out"),
             }}
           />
           <Stack.Screen
@@ -67,7 +79,7 @@ const Layout = () => {
             component={RideStatus}
             options={{
               title: "Ride Status",
-              headerRight: () => <Button onPress={onLogout} title="Sign out" />,
+              headerRight: () => renderHeaderRight("Sign out"),
             }}
           />
           <Stack.Screen
@@ -75,20 +87,19 @@ const Layout = () => {
             component={FinishRide}
             options={{
               title: "Finish Ride",
-              headerRight: () => <Button onPress={onLogout} title="Sign out" />,
+              headerRight: () => renderHeaderRight("Sign out"),
             }}
           />
         </>
-      ) : // If not authenticated, show Login or Register based on state
-        state === 0 ? (
+      ) : (
+        authScreen === "login" ? (
           <Stack.Screen
             name="Login"
             component={Login}
             options={{
               title: "Login",
-              headerRight: () => (
-                <Button onPress={() => setState(1)} title="Register" />
-              ),
+              headerRight: () =>
+                renderHeaderRight("Register", toggleAuthScreen),
             }}
           />
         ) : (
@@ -97,12 +108,12 @@ const Layout = () => {
             component={Register}
             options={{
               title: "Register",
-              headerRight: () => (
-                <Button onPress={() => setState(0)} title="Login" />
-              ),
+              headerRight: () =>
+                renderHeaderRight("Login", toggleAuthScreen),
             }}
           />
-        )}
+        )
+      )}
     </Stack.Navigator>
   );
 };
