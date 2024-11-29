@@ -1,73 +1,66 @@
-import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Home from "../screens/home";
-import CreateRide from "../screens/createride";
-import RequestRide from "../screens/requestride"; // Import RequestRide
-import RideStatus from "../screens/ridestatus";
-import FinishRideScreen from "../screens/finishride";
-
-// Define the type for the navigation stack
-export type RootStackParamList = {
-  Home: undefined;
-  CreateRide: undefined;
-  RequestRide: undefined;
-  Login: undefined;
-  Register: undefined;
-  RideStatus: undefined;
-  FinishRide: undefined;
-};
+import React from "react";
+import { RoutesEnum } from '../@types/routes';
+import { StackParams } from '../@types/stack';
+import CreateRide from "../screens/CreateRide";
+import Landing from "../screens/Landing";
+import RideStatus from "../screens/RideStatus";
+import RequestRide from '../screens/RequestRide';
+import RequestStatus from '../screens/RequestStatus';
 
 // Create the stack navigator
-const Stack = createNativeStackNavigator<RootStackParamList>();
+export const Stack = createNativeStackNavigator<StackParams>();
 
 const AppNavigator: React.FC = () => {
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator initialRouteName={RoutesEnum.LANDING}>
       <Stack.Screen
-        name="Home"
-        component={Home}
+        name={RoutesEnum.LANDING}
+        component={Landing}
         options={{
-          title: "Home",
+          title: RoutesEnum.LANDING,
           headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "#FFFFFF",
           headerTitleStyle: { fontWeight: "bold" },
         }}
       />
+      // how to pass RideStateEnum.
       <Stack.Screen
-        name="CreateRide"
+        name={RoutesEnum.CREATE_RIDE}
+        
         component={CreateRide}
         options={{
-          title: "Create Ride",
+          title: RoutesEnum.CREATE_RIDE,
           headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "#FFFFFF",
           headerTitleStyle: { fontWeight: "bold" },
         }}
       />
       <Stack.Screen
-        name="RequestRide"
+        name={RoutesEnum.REQUEST_RIDE}
         component={RequestRide}
         options={{
-          title: "Request Ride",
+          title: RoutesEnum.REQUEST_RIDE,
           headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "#FFFFFF",
           headerTitleStyle: { fontWeight: "bold" },
         }}
       />
       <Stack.Screen
-        name="RideStatus"
+        name={RoutesEnum.RIDE_STATUS}
         component={RideStatus}
         options={{
-          title: "Ride Status",
+          title: RoutesEnum.RIDE_STATUS,
           headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "#FFFFFF",
           headerTitleStyle: { fontWeight: "bold" },
         }}
       />
       <Stack.Screen
-        name="FinishRide"
-        component={FinishRideScreen}
+        name={RoutesEnum.REQUEST_STATUS}
+        component={RequestStatus}
         options={{
-          title: "Finsh Ride",
+          title: RoutesEnum.REQUEST_STATUS,
           headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "#FFFFFF",
           headerTitleStyle: { fontWeight: "bold" },

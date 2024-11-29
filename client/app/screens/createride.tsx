@@ -1,44 +1,39 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { StackParams } from "../@types/stack";
+import { RoutesEnum } from "../@types/routes";
 
 const CreateRide: React.FC = () => {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<StackParams>>();
 
   const handleCreateRide = () => {
     if (from && to) {
-      // Navigate to RideStatus screen with from and to locations
-      navigation.navigate("RideStatus", { from, to });
+      navigation.navigate(RoutesEnum.RIDE_STATUS, { from, to });
     } else {
       alert("Please enter both From and To locations");
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white p-4">
       {/* Placeholder for map */}
-      <View style={styles.mapPlaceholder}>
-        <Text style={styles.mapText}>MAP</Text>
+      <View className="bg-gray-200 h-52 justify-center items-center mb-4 rounded-lg">
+        <Text className="text-lg text-gray-500">MAP</Text>
       </View>
 
       {/* Input fields */}
       <TextInput
-        style={styles.input}
+        className="bg-white border border-black rounded-lg p-3 text-lg mb-4"
         placeholder="From"
         placeholderTextColor="#9CA3AF"
         value={from}
         onChangeText={setFrom}
       />
       <TextInput
-        style={styles.input}
+        className="bg-white border border-black rounded-lg p-3 text-lg mb-4"
         placeholder="To"
         placeholderTextColor="#9CA3AF"
         value={to}
@@ -47,52 +42,13 @@ const CreateRide: React.FC = () => {
 
       {/* Create Ride button */}
       <TouchableOpacity
-        style={styles.createRideButton}
+        className="bg-black p-4 rounded-lg items-center"
         onPress={handleCreateRide}
       >
-        <Text style={styles.createRideText}>CREATE RIDE</Text>
+        <Text className="text-lg font-bold text-white">CREATE RIDE</Text>
       </TouchableOpacity>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    padding: 16,
-  },
-  mapPlaceholder: {
-    backgroundColor: "#E5E5E5",
-    height: 200,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  mapText: {
-    fontSize: 18,
-    color: "#9CA3AF",
-  },
-  input: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#000000",
-    borderRadius: 4,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  createRideButton: {
-    backgroundColor: "#000000",
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  createRideText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-});
 
 export default CreateRide;

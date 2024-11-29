@@ -1,16 +1,15 @@
-import React, { useState } from "react";
-import { AuthProvider } from "./context/AuthContext";
-import { useAuth } from "./context/AuthContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Home from "./screens/home";
-import Login from "./screens/login";
-import Register from "./screens/register";
-import DriverDashboard from "./screens/driverdashboard";
-import CreateRide from "./screens/createride";
-import RequestRide from "./screens/requestride"; // Import RequestRide
-import RideStatus from "./screens/ridestatus"; // Import RideStatus
-import FinishRideScreen from "./screens/finishride"; // Import FinishRideScreen
+import React, { useState } from "react";
 import { Button } from "react-native";
+import FinishRide from "./components/RideFinish";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import CreateRide from "./screens/CreateRide";
+import Landing from "./screens/Landing";
+import Login from "./screens/Login";
+import Register from "./screens/Register";
+import RequestRide from "./screens/RequestRide";
+import RideStatus from "./screens/RideStatus";
+import RequestStatus from './screens/RequestStatus';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,30 +21,20 @@ const App = () => {
   );
 };
 
-export default App;
-
-export const Layout = () => {
+const Layout = () => {
   const { authState, onLogout } = useAuth();
-  const [state, setState] = useState(0); // Tracks whether user is on Login (0) or Register (1)
+  const [state, setState] = useState(0);
 
   return (
     <Stack.Navigator>
       {/* If authenticated, show authenticated screens */}
-      {authState?.authenticated ? (
+      {!authState?.authenticated ? (
         <>
           <Stack.Screen
-            name="Home"
-            component={Home}
+            name="Landing"
+            component={Landing}
             options={{
-              title: "Home",
-              headerRight: () => <Button onPress={onLogout} title="Sign out" />,
-            }}
-          />
-          <Stack.Screen
-            name="DriverDashboard"
-            component={DriverDashboard}
-            options={{
-              title: "Driver Dashboard",
+              title: "Landing",
               headerRight: () => <Button onPress={onLogout} title="Sign out" />,
             }}
           />
@@ -66,6 +55,14 @@ export const Layout = () => {
             }}
           />
           <Stack.Screen
+            name="RequestStatus"
+            component={RequestStatus}
+            options={{
+              title: "Request Status",
+              headerRight: () => <Button onPress={onLogout} title="Sign out" />,
+            }}
+          />
+          <Stack.Screen
             name="RideStatus"
             component={RideStatus}
             options={{
@@ -75,7 +72,7 @@ export const Layout = () => {
           />
           <Stack.Screen
             name="FinishRide"
-            component={FinishRideScreen}
+            component={FinishRide}
             options={{
               title: "Finish Ride",
               headerRight: () => <Button onPress={onLogout} title="Sign out" />,
@@ -83,29 +80,31 @@ export const Layout = () => {
           />
         </>
       ) : // If not authenticated, show Login or Register based on state
-      state === 0 ? (
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{
-            title: "Login",
-            headerRight: () => (
-              <Button onPress={() => setState(1)} title="Register" />
-            ),
-          }}
-        />
-      ) : (
-        <Stack.Screen
-          name="Register"
-          component={Register}
-          options={{
-            title: "Register",
-            headerRight: () => (
-              <Button onPress={() => setState(0)} title="Login" />
-            ),
-          }}
-        />
-      )}
+        state === 0 ? (
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{
+              title: "Login",
+              headerRight: () => (
+                <Button onPress={() => setState(1)} title="Register" />
+              ),
+            }}
+          />
+        ) : (
+          <Stack.Screen
+            name="Register"
+            component={Register}
+            options={{
+              title: "Register",
+              headerRight: () => (
+                <Button onPress={() => setState(0)} title="Login" />
+              ),
+            }}
+          />
+        )}
     </Stack.Navigator>
   );
 };
+
+export default App;

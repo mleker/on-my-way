@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import { NavigationProp } from '@react-navigation/native';
 import * as Location from "expo-location";
+import { useNavigation } from 'expo-router';
+import React, { useEffect, useState } from "react";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
+import MapView, { Marker } from "react-native-maps";
+import { RoutesEnum } from '../@types/routes';
+import { StackParams } from '../@types/stack';
 
-const FinishRideScreen: React.FC = ({ navigation }: any) => {
+const RideFinish: React.FC = () => {
   const [location, setLocation] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [time, setTime] = useState<number | null>(null);
+  const navigation = useNavigation<NavigationProp<StackParams>>();
 
   // Mock locations for Berlin Airport and Kreuzberg
   const dropOffLocation = {
@@ -37,10 +42,11 @@ const FinishRideScreen: React.FC = ({ navigation }: any) => {
         dropOffLocation.latitude,
         dropOffLocation.longitude
       );
-      setDistance(distanceToDropOff);
+      const distanceToDropOffNumber = parseFloat(distanceToDropOff);
+      setDistance(distanceToDropOffNumber);
 
       // Approximate time in minutes (assuming 50km/h average speed)
-      const timeToDropOff = (distanceToDropOff / 50) * 60;
+      const timeToDropOff = (distanceToDropOffNumber / 50) * 60;
       setTime(Math.ceil(timeToDropOff));
     };
 
@@ -69,15 +75,15 @@ const FinishRideScreen: React.FC = ({ navigation }: any) => {
 
   const handleFinishRide = () => {
     Alert.alert("Ride Finished", "Thank you for completing the ride!");
-    navigation.navigate("Home"); // Redirect to Create Ride/Request Ride page
+    navigation.navigate(RoutesEnum.LANDING);
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white">
       {location ? (
         <>
           <MapView
-            style={styles.map}
+            className="flex-1 h-72 rounded-lg mb-4 mx-4"
             initialRegion={{
               latitude: location.latitude,
               longitude: location.longitude,
@@ -101,21 +107,23 @@ const FinishRideScreen: React.FC = ({ navigation }: any) => {
               pinColor="green"
             />
           </MapView>
-          <View style={styles.infoBox}>
-            <Text style={styles.infoText}>
+          <View className="bg-white p-4 rounded-lg mx-4 mb-4 shadow-lg">
+            <Text className="text-lg font-bold text-black mb-2">
               Distance to drop-off: {distance} km
             </Text>
-            <Text style={styles.infoText}>Time left: {time} mins</Text>
+            <Text className="text-lg font-bold text-black">
+              Time left: {time} mins
+            </Text>
           </View>
           <TouchableOpacity
-            style={styles.finishButton}
+            className="bg-black p-4 mx-4 mb-4 rounded-lg items-center"
             onPress={handleFinishRide}
           >
-            <Text style={styles.finishButtonText}>FINISH RIDE</Text>
+            <Text className="text-lg font-bold text-white">FINISH RIDE</Text>
           </TouchableOpacity>
         </>
       ) : (
-        <Text style={styles.loadingText}>
+        <Text className="text-center text-lg text-gray-500 mt-4">
           {errorMsg || "Fetching your location..."}
         </Text>
       )}
@@ -123,55 +131,4 @@ const FinishRideScreen: React.FC = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  map: {
-    flex: 1,
-    height: 300,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  infoBox: {
-    backgroundColor: "#FFFFFF",
-    padding: 16,
-    borderRadius: 8,
-    marginHorizontal: 16,
-    marginBottom: 16, // Added margin-bottom for better spacing
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  infoText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 8,
-  },
-  finishButton: {
-    backgroundColor: "#000000",
-    padding: 16,
-    marginHorizontal: 16,
-    marginBottom: 16, // Ensure spacing from the bottom
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  finishButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-  loadingText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "#555555",
-    marginTop: 16,
-  },
-});
-
-export default FinishRideScreen;
+export default RideFinish;
