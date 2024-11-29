@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useState } from "react";
-import { Button } from "react-native";
+import { Button, Text, TouchableOpacity } from "react-native";
 import FinishRide from "./components/RideFinish";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import CreateRide from "./screens/CreateRide";
@@ -12,6 +12,7 @@ import RideStatus from "./screens/RideStatus";
 import RequestStatus from './screens/RequestStatus';
 
 const Stack = createNativeStackNavigator();
+const SIGN_OUT = "SIGN OUT";
 
 const App = () => {
   return (
@@ -27,10 +28,11 @@ const Layout = () => {
 
   const renderHeaderRight = (title: string, callback?: () => void) => {
     return (
-      <Button
-        onPress={callback || onLogout}
-        title={callback ? title : "Sign out"}
-      />
+      <TouchableOpacity onPress={callback || onLogout}>
+        <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
+          {callback ? title : "SIGN OUT"}
+        </Text>
+      </TouchableOpacity>
     );
   };
 
@@ -39,55 +41,61 @@ const Layout = () => {
   };
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: "#000",
+      },
+      headerTintColor: "#fff",
+      headerTitleStyle: {
+        color: "#fff",
+      },
+      headerTitle: "", 
+      headerShadowVisible: false,
+    }}
+    >
       {authState?.authenticated ? (
         <>
           <Stack.Screen
             name="Landing"
             component={Landing}
             options={{
-              title: "Landing",
-              headerRight: () => renderHeaderRight("Sign out"),
+              headerRight: () => renderHeaderRight(SIGN_OUT),
             }}
           />
           <Stack.Screen
             name="CreateRide"
             component={CreateRide}
             options={{
-              title: "Create Ride",
-              headerRight: () => renderHeaderRight("Sign out"),
+              headerRight: () => renderHeaderRight(SIGN_OUT),
             }}
           />
           <Stack.Screen
             name="RequestRide"
             component={RequestRide}
             options={{
-              title: "Request Ride",
-              headerRight: () => renderHeaderRight("Sign out"),
+              headerRight: () => renderHeaderRight(SIGN_OUT),
             }}
           />
           <Stack.Screen
             name="RequestStatus"
             component={RequestStatus}
             options={{
-              title: "Request Status",
-              headerRight: () => renderHeaderRight("Sign out"),
+              headerRight: () => renderHeaderRight(SIGN_OUT),
             }}
           />
           <Stack.Screen
             name="RideStatus"
             component={RideStatus}
             options={{
-              title: "Ride Status",
-              headerRight: () => renderHeaderRight("Sign out"),
+              headerRight: () => renderHeaderRight(SIGN_OUT),
             }}
           />
           <Stack.Screen
             name="FinishRide"
             component={FinishRide}
             options={{
-              title: "Finish Ride",
-              headerRight: () => renderHeaderRight("Sign out"),
+              headerRight: () => renderHeaderRight(SIGN_OUT),
             }}
           />
         </>
@@ -97,7 +105,6 @@ const Layout = () => {
             name="Login"
             component={Login}
             options={{
-              title: "Login",
               headerRight: () =>
                 renderHeaderRight("Register", toggleAuthScreen),
             }}
@@ -107,7 +114,6 @@ const Layout = () => {
             name="Register"
             component={Register}
             options={{
-              title: "Register",
               headerRight: () =>
                 renderHeaderRight("Login", toggleAuthScreen),
             }}

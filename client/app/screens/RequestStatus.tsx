@@ -11,6 +11,7 @@ import { RoutesEnum } from '../@types/routes';
 import { StackParams } from '../@types/stack';
 import RequestPending from '../components/RequestPending';
 import RideInProgress from '../components/RideInProgress';
+import RidePickUp from '../components/RidePickUp';
 
 const RequestStatus: React.FC = () => {
   const route = useRoute();
@@ -26,7 +27,7 @@ const RequestStatus: React.FC = () => {
   };
 
   const handleDriverMatched = () => {
-    setRequestStatus(RequestStatusEnum.MATCHED);
+    setRequestStatus(RequestStatusEnum.PICK_UP);
     Alert.alert("Request Accepted", "Driver has accepted your ride request.");
     setDriver(MockDrivers[1]);
   };
@@ -38,12 +39,25 @@ const RequestStatus: React.FC = () => {
     Alert.alert("Ride Finished", "Thank you for completing the ride!");
   };
 
+  const handleCancelRide = () => {
+    Alert.alert("Ride Cancelled", "Your ride has been cancelled.");
+    setDriver(null);
+    setRequestStatus(RequestStatusEnum.CANCELLED);
+    navigation.navigate(RoutesEnum.LANDING);
+  }
+
   return (
     <View className="flex-1 bg-white">
       {(requestStatus === RequestStatusEnum.PENDING) ? (
         <RequestPending
           onDriverMatched={handleDriverMatched}
           onCancel={handleCancelRequest}
+        />
+      ) : (requestStatus === RequestStatusEnum.PICK_UP && driver) ? (
+        <RidePickUp
+          onCancel={handleCancelRide}
+          onStart={() => setRequestStatus(RequestStatusEnum.MATCHED)}
+          driver={driver}
         />
       ) : (requestStatus === RequestStatusEnum.MATCHED && driver) ? (
         <RideInProgress

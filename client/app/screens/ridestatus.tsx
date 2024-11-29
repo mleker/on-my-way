@@ -38,6 +38,7 @@ const RideStatus: React.FC = () => {
             setSelectedRider(rider);
             setRideStatus(RideStatusEnum.PICK_UP);
           }}
+          onCancel={handleCancelRide}
         />
       ) : (rideStatus === RideStatusEnum.PICK_UP && selectedRider) ? (
         <RidePickUp

@@ -1,14 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
-import { NavigationProp, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import * as Location from "expo-location";
-import { useNavigation } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
+import { IDriver } from '../@types/driver';
 import { IRoute } from '../@types/ride';
 import { IRider } from '../@types/rider';
-import { StackParams } from '../@types/stack';
-import { IDriver } from '../@types/driver';
 
 interface IRideInProgress {
   driver?: IDriver;
@@ -61,6 +58,16 @@ const RideInProgress: React.FC<IRideInProgress> = ({ driver, rider, onFinish }) 
 
     fetchLocation();
   }, []);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (driver) {
+      timeout = setTimeout(() => {
+        onFinish();
+      }, 10000);
+    }
+    return () => clearTimeout(timeout);
+  }, [driver]);
 
   const calculateDistance = (
     lat1: number,
@@ -203,14 +210,16 @@ const RideInProgress: React.FC<IRideInProgress> = ({ driver, rider, onFinish }) 
       </View>
 
       {/* Action Buttons */}
-      <View className="flex-row justify-between m-4 space-x-4">
-        <TouchableOpacity
-          className="flex-1 bg-black p-4 items-center"
-          onPress={onFinish}
-        >
-          <Text className="text-white font-black text-base">FINISH RIDE</Text>
-        </TouchableOpacity>
-      </View>
+      {rider && (
+        <View className="flex-row justify-between m-4 space-x-4">
+          <TouchableOpacity
+            className="flex-1 bg-black p-4 items-center"
+            onPress={onFinish}
+          >
+            <Text className="text-white font-black text-base">FINISH RIDE</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </>
   );
 };

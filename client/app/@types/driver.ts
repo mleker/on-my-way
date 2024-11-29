@@ -3,6 +3,7 @@ export interface IDriver {
   name: string;
   vehicle: string;
   license: string;
+  time: number;
 }
 
 export const MockDrivers: IDriver[] = [
@@ -11,11 +12,13 @@ export const MockDrivers: IDriver[] = [
     name: "Ibrahim",
     vehicle: "Toyota Corolla",
     license: "AB62345",
+    time: 5,
   },
   {
     id: "2",
     name: "Anastasia",
     vehicle: "BMW 3 Series",
     license: "CD67890",
+    time: 6,
   },
 ]

@@ -4,14 +4,16 @@ import React, { useEffect, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { IRider } from '../@types/rider';
+import { IDriver } from '../@types/driver';
 
 interface IRidePickUp {
-  rider: IRider;
+  rider?: IRider;
+  driver?: IDriver;
   onStart: () => void;
   onCancel: () => void;
 }
 
-const RidePickUp: React.FC<IRidePickUp> = ({ rider, onStart, onCancel }) => {
+const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel }) => {
   const [location, setLocation] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
@@ -93,6 +95,16 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, onStart, onCancel }) => {
     return distance.toFixed(1); // Round to 1 decimal place
   };
 
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (driver) {
+      timeout = setTimeout(() => {
+        onStart();
+      }, 5000);
+    }
+    return () => clearTimeout(timeout);
+  }, [driver, onStart]);
+
   return (
     <>
       {/* Map Section */}
@@ -125,6 +137,17 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, onStart, onCancel }) => {
             pinColor="green"
           />
         )}
+        {driver && (
+          <Marker
+            coordinate={{
+              latitude: 52.499508,
+              longitude: 13.397634,
+            }}
+            title={driver.name}
+            description="Pickup Location"
+            pinColor="green"
+          />
+        )}
         <Polyline
           coordinates={[
             { latitude: 52.520008, longitude: 13.404954 },
@@ -137,13 +160,25 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, onStart, onCancel }) => {
 
       {/* Rider Info Section */}
       <View className="p-4 mb-4 items-center">
-        <Text className="text-xl text-center">
-          Your passenger {" "}
-          <Text className='text-xl font-bold'>
-            {rider?.name}{" "}
+        {rider && (
+          <Text className="text-xl text-center">
+            Your passenger {" "}
+            <Text className='text-xl font-bold'>
+              {rider?.name}{" "}
+            </Text>
+            is ~{rider.time} mins away and waiting for you
           </Text>
-          is coming in ~{rider.time} mins
-        </Text>
+        )}
+
+        {driver && (
+          <Text className="text-xl text-center">
+            Your driver {" "}
+            <Text className='text-xl font-bold'>
+              {driver?.name}{" "}
+            </Text>
+            is coming for you in ~{driver.time} mins
+          </Text>
+        )}
 
         <View className="flex-row justify-center mt-4 space-x-4">
           <TouchableOpacity
@@ -154,7 +189,7 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, onStart, onCancel }) => {
           </TouchableOpacity>
           <TouchableOpacity
             className="bg-black rounded-full p-4"
-            onPress={() => handleChat(rider?.name || "Rider")}
+            onPress={() => handleChat(rider ? (rider.name) : (driver?.name || "Driver"))}
           >
             <Ionicons
               name="chatbubble-ellipses-outline"
@@ -164,7 +199,7 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, onStart, onCancel }) => {
           </TouchableOpacity>
           <TouchableOpacity
             className="bg-black rounded-full p-4"
-            onPress={() => handleCall(rider?.name || "Rider")}
+            onPress={() => handleCall(rider ? (rider.name) : (driver?.name || "Driver"))}
           >
             <Ionicons name="call-outline" size={24} color="#FFFFFF" />
           </TouchableOpacity>
@@ -172,20 +207,22 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, onStart, onCancel }) => {
       </View>
 
       {/* Action Buttons */}
-      <View className="flex-row justify-between m-4 space-x-4">
-        <TouchableOpacity
-          className="flex-1 bg-black p-4 border-4 items-center"
-          onPress={handleStartRide}
-        >
-          <Text className="text-white font-bold text-base">START RIDE</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="flex-1 border-red-500 border-solid border-4 p-4 items-center"
-          onPress={onCancel}
-        >
-          <Text className="text-red-500 font-bold text-base">CANCEL RIDE</Text>
-        </TouchableOpacity>
-      </View>
+      {rider && (
+        <View className="flex-row justify-between m-4 space-x-4">
+          <TouchableOpacity
+            className="flex-1 bg-black p-4 border-4 items-center"
+            onPress={handleStartRide}
+          >
+            <Text className="text-white font-bold text-base">START RIDE</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="flex-1 border-red-500 border-solid border-4 p-4 items-center"
+            onPress={onCancel}
+          >
+            <Text className="text-red-500 font-bold text-base">CANCEL RIDE</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </>
   );
 };
