@@ -21,8 +21,6 @@ interface IAuthProps {
 const TOKEN_KEY = "tester2";
 const AuthContext = createContext<IAuthProps>({});
 
-const BASE_URL = "http://192.168.178.24:3000/api/users";
-
 export const AuthProvider = ({ children }: any) => {
   const [authState, setAuthState] = useState<IAuthState>({
     token: null,
@@ -46,7 +44,7 @@ export const AuthProvider = ({ children }: any) => {
     surname: string
   ) => {
     try {
-      const res = await fetch(`${BASE_URL}/reg`, {
+      const res = await fetch(`${process.env.EXPO_PUBLIC_BASE_URL}/reg`, {
         method: "POST",
         credentials: "include",
         mode: "cors",
@@ -66,7 +64,7 @@ export const AuthProvider = ({ children }: any) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await fetch(`${BASE_URL}/login`, {
+      const res = await fetch(`${process.env.EXPO_PUBLIC_BASE_URL}/login`, {
         method: "POST",
         credentials: "include",
         mode: "cors",
@@ -93,7 +91,7 @@ export const AuthProvider = ({ children }: any) => {
   };
 
   const getProfile = async (token: String) => {
-    const res = fetch(`${BASE_URL}/profile`, {
+    const res = fetch(`${process.env.EXPO_PUBLIC_BASE_URL}/profile`, {
       method: "GET",
       credentials: "include",
       mode: "cors",

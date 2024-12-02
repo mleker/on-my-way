@@ -1,7 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { Text, TouchableOpacity } from "react-native";
-import FinishRide from "./components/RideFinish";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import CreateRide from "./screens/CreateRide";
 import Landing from "./screens/Landing";
@@ -9,11 +8,9 @@ import Login from "./screens/Login";
 import RequestRide from "./screens/RequestRide";
 import RequestStatus from './screens/RequestStatus';
 import RideStatus from "./screens/RideStatus";
-import Register from "./screens/SignUp";
 import SignUp from './screens/SignUp';
 
 const Stack = createNativeStackNavigator();
-const SIGN_OUT = "SIGN OUT";
 
 const App = () => {
   return (
@@ -25,20 +22,15 @@ const App = () => {
 
 const Layout = () => {
   const { authState, onLogout } = useAuth();
-  const [authScreen, setAuthScreen] = useState<"login" | "register">("register");
 
-  const renderHeaderRight = (title: string, callback?: () => void) => {
+  const renderHeaderRight = () => {
     return (
-      <TouchableOpacity onPress={callback || onLogout}>
+      <TouchableOpacity onPress={onLogout}>
         <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
-          {callback ? title : "SIGN OUT"}
+          SIGN OUT
         </Text>
       </TouchableOpacity>
     );
-  };
-
-  const toggleAuthScreen = () => {
-    setAuthScreen((prevScreen) => (prevScreen === "login" ? "register" : "login"));
   };
 
   return (
@@ -51,7 +43,7 @@ const Layout = () => {
       headerTitleStyle: {
         color: "#fff",
       },
-      headerTitle: "", 
+      headerTitle: "",
       headerShadowVisible: false,
     }}
     >
@@ -61,59 +53,51 @@ const Layout = () => {
             name="Landing"
             component={Landing}
             options={{
-              headerRight: () => renderHeaderRight(SIGN_OUT),
+              headerRight: () => renderHeaderRight(),
             }}
           />
           <Stack.Screen
             name="CreateRide"
             component={CreateRide}
             options={{
-              headerRight: () => renderHeaderRight(SIGN_OUT),
+              headerRight: () => renderHeaderRight(),
             }}
           />
           <Stack.Screen
             name="RequestRide"
             component={RequestRide}
             options={{
-              headerRight: () => renderHeaderRight(SIGN_OUT),
+              headerRight: () => renderHeaderRight(),
             }}
           />
           <Stack.Screen
             name="RequestStatus"
             component={RequestStatus}
             options={{
-              headerRight: () => renderHeaderRight(SIGN_OUT),
+              headerRight: () => renderHeaderRight(),
             }}
           />
           <Stack.Screen
             name="RideStatus"
             component={RideStatus}
             options={{
-              headerRight: () => renderHeaderRight(SIGN_OUT),
+              headerRight: () => renderHeaderRight(),
             }}
           />
         </>
       ) : (
-        authScreen === "login" ? (
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{
-              headerRight: () =>
-                renderHeaderRight("Sign up", toggleAuthScreen),
-            }}
-          />
-        ) : (
-          <Stack.Screen
-            name="SignUp"
-            component={SignUp}
-            options={{
-              headerRight: () =>
-                renderHeaderRight("Login", toggleAuthScreen),
-            }}
-          />
+          <>
+            <Stack.Screen
+              name="Login"
+              component={Login}
+            />
+            <Stack.Screen
+              name="SignUp"
+              component={SignUp}
+            />
+          </>
         )
-      )}
+      }
     </Stack.Navigator>
   );
 };
