@@ -1,11 +1,13 @@
-import { useRoute } from '@react-navigation/native';
+import { useRoute } from "@react-navigation/native";
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import { IDriver } from '../@types/driver';
-import { IRoute } from '../@types/ride';
-import { IRider } from '../@types/rider';
+import { IDriver } from "../@types/driver";
+import { IRoute } from "../@types/ride";
+import { IRider } from "../@types/rider";
+import MapViewDirections from "react-native-maps-directions";
+import { IMarker } from "../screens/RequestRide";
 
 interface IRideInProgress {
   driver?: IDriver;
@@ -13,12 +15,19 @@ interface IRideInProgress {
   onFinish: () => void;
 }
 
-const RideInProgress: React.FC<IRideInProgress> = ({ driver, rider, onFinish }) => {
+const RideInProgress: React.FC<IRideInProgress> = ({
+  driver,
+  rider,
+  onFinish,
+}) => {
   const [location, setLocation] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [time, setTime] = useState<number | null>(null);
-  const { from, to } = useRoute().params as IRoute;
+  const { from, to, fromMarker, toMarker }: any = useRoute().params as IRoute;
+  const [apiKey] = useState<string | undefined>(
+    process.env.EXPO_PUBLIC_API_KEY
+  );
 
   // Mock locations for Berlin Airport and Kreuzberg
   const dropOffLocation = {
@@ -39,7 +48,13 @@ const RideInProgress: React.FC<IRideInProgress> = ({ driver, rider, onFinish }) 
         return;
       }
 
-      setLocation(driverLocation); // Using mock driver's location
+      setLocation({
+        latitude: (fromMarker.latitude + toMarker.latitude) / 2,
+        longitude: (fromMarker.longitude + toMarker.longitude) / 2,
+        latitudeDelta: Math.abs(fromMarker.latitude - toMarker.latitude) * 2,
+        longitudeDelta: Math.abs(fromMarker.longitude - toMarker.longitude) * 2,
+      });
+
 
       // Calculate distance and time
       const distanceToDropOff = calculateDistance(
@@ -64,7 +79,7 @@ const RideInProgress: React.FC<IRideInProgress> = ({ driver, rider, onFinish }) 
     if (driver) {
       timeout = setTimeout(() => {
         onFinish();
-      }, 10000);
+      }, 5000);
     }
     return () => clearTimeout(timeout);
   }, [driver]);
@@ -81,9 +96,9 @@ const RideInProgress: React.FC<IRideInProgress> = ({ driver, rider, onFinish }) 
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c; // Distance in km
     return distance.toFixed(1); // Round to 1 decimal place
@@ -102,51 +117,29 @@ const RideInProgress: React.FC<IRideInProgress> = ({ driver, rider, onFinish }) 
     <>
       <MapView
         className="flex-1 h-72 rounded-lg mb-4"
-        initialRegion={{
-          latitude: 52.520008,
-          longitude: 13.404954,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
-        }}
+        initialRegion={location}
       >
         <Marker
-          coordinate={{
-            latitude: 52.520008,
-            longitude: 13.404954,
-          }}
-          title="Driver"
+          coordinate={fromMarker}
+          title="Pickup"
           description="Your current location"
           pinColor="blue"
         />
-        {driver && (
-          <Marker
-            coordinate={{
-              latitude: driverLocation.latitude,
-              longitude: driverLocation.longitude,
-            }}
-            title={driver.name}
-            description="Driver's Location"
-            pinColor="red"
-          />
-        )}
-        {rider && (
-          <Marker
-            coordinate={{
-              latitude: 52.499508,
-              longitude: 13.397634,
-            }}
-            title={rider.name}
-            description="Passenger Pickup Location"
-            pinColor="green"
-          />
-        )}
-        <Polyline
-          coordinates={[
-            { latitude: 52.520008, longitude: 13.404954 },
-            { latitude: 52.499508, longitude: 13.397634 },
-          ]}
-          strokeColor="#0000FF"
-          strokeWidth={3}
+        <Marker
+          coordinate={toMarker}
+          title="Drop off"
+          description="Passenger Pickup Location"
+          pinColor="green"
+        />
+        <MapViewDirections
+          origin={fromMarker as IMarker}
+          destination={toMarker}
+          apikey={apiKey as string}
+          strokeWidth={4}
+          strokeColor="black"
+          onError={(errorMessage) =>
+            console.error("Directions API error:", errorMessage)
+          }
         />
       </MapView>
 
@@ -155,56 +148,42 @@ const RideInProgress: React.FC<IRideInProgress> = ({ driver, rider, onFinish }) 
         {rider && (
           <Text className="text-2xl text-center">
             You are driving with{" "}
-            <Text className='text-2xl font-black'>
-              {rider.name}
-            </Text>
+            <Text className="text-2xl font-black">{rider.name}</Text>
           </Text>
         )}
 
         {driver && (
           <View className="flex text-2xl items-center">
-            <Text className='text-2xl'>
+            <Text className="text-2xl">
               You driver is{" "}
-              <Text className='text-2xl font-black'>
-                {driver.name}
-              </Text>
+              <Text className="text-2xl font-black">{driver.name}</Text>
             </Text>
             <Text>
-              <Text className='text-2xl'>
-                Vehicle type:{' '}
-                <Text className='font-black'>
-                  {driver.vehicle}
-                </Text>
+              <Text className="text-2xl">
+                Vehicle type:{" "}
+                <Text className="font-black">{driver.vehicle}</Text>
               </Text>
             </Text>
-            <Text className='text-2xl'>
-              Licence number:{' '}
-              <Text className='font-black'>
-                {driver.license}
-              </Text>
+            <Text className="text-2xl">
+              Licence number:{" "}
+              <Text className="font-black">{driver.license}</Text>
             </Text>
           </View>
         )}
 
         <View>
           <Text className="text-2xl text-center mb-4">
-            from{" "}
-            <Text className="font-black">{from}</Text> to{" "}
+            from <Text className="font-black">{from}</Text> to{" "}
             <Text className="font-black">{to}</Text>
           </Text>
         </View>
         <View className="bg-white p-4 mx-4 mb-4 flex items-center">
           <Text className="text-l text-black mb-2">
-            <Text className='font-black'>
-              DISTANCE TO DROP-OFF:
-            </Text>
-            {" "}{distance} km
+            <Text className="font-black">DISTANCE TO DROP-OFF:</Text> {distance}{" "}
+            km
           </Text>
           <Text className="text-l text-black">
-            <Text className='font-black'>
-              TIME LEFT:
-            </Text>
-            {" "}{time} mins
+            <Text className="font-black">TIME LEFT:</Text> {time} mins
           </Text>
         </View>
       </View>

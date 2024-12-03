@@ -1,21 +1,25 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React from "react";
 import { Text, TouchableOpacity } from "react-native";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import CreateRide from "./screens/CreateRide";
 import Landing from "./screens/Landing";
 import Login from "./screens/Login";
 import RequestRide from "./screens/RequestRide";
-import RequestStatus from './screens/RequestStatus';
+import RequestStatus from "./screens/RequestStatus";
 import RideStatus from "./screens/RideStatus";
-import SignUp from './screens/SignUp';
+import SignUp from "./screens/SignUp";
+import AddressSearch from "./screens/AddressSearch";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
     <AuthProvider>
-      <Layout />
+      <SafeAreaProvider>
+        <Layout />
+      </SafeAreaProvider>
     </AuthProvider>
   );
 };
@@ -35,17 +39,17 @@ const Layout = () => {
 
   return (
     <Stack.Navigator
-    screenOptions={{
-      headerStyle: {
-        backgroundColor: "#000",
-      },
-      headerTintColor: "#fff",
-      headerTitleStyle: {
-        color: "#fff",
-      },
-      headerTitle: "",
-      headerShadowVisible: false,
-    }}
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: "#000",
+        },
+        headerTintColor: "#fff",
+        headerTitleStyle: {
+          color: "#fff",
+        },
+        headerTitle: "",
+        headerShadowVisible: false,
+      }}
     >
       {authState?.authenticated ? (
         <>
@@ -84,20 +88,30 @@ const Layout = () => {
               headerRight: () => renderHeaderRight(),
             }}
           />
+          <Stack.Screen
+            name={"Search"}
+            component={AddressSearch}
+            options={{ title: "Search Address" }}
+          />
         </>
       ) : (
-          <>
-            <Stack.Screen
-              name="Login"
-              component={Login}
-            />
-            <Stack.Screen
-              name="SignUp"
-              component={SignUp}
-            />
-          </>
-        )
-      }
+        <>
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{
+              headerBackVisible: false,
+            }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUp}
+            options={{
+              headerBackVisible: false,
+            }}
+          />
+        </>
+      )}
     </Stack.Navigator>
   );
 };
