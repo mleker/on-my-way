@@ -9,10 +9,11 @@ import {
 
 const router = express.Router();
 
-router.get("/get", getRides);
-router.post("create", createRide);
-router.delete("/delete", deleteRide);
-router.patch("/accept", startRide);
-router.patch("/complete", completeRide);
+router.get("/", getRides);
+router.post("/", createRide);
+router.delete("/:rideId", deleteRide);
+router.patch("/:rideId/start", startRide);
+router.patch("/:rideId/complete", completeRide);
 
 export default router;
+

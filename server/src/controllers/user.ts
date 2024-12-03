@@ -8,7 +8,7 @@ dotenv.config();
 
 const SECRET_KEY: string | undefined = process.env.SECRET_KEY;
 
-export const createUser = async (req: Request, res: Response) => {
+export const registerUser = async (req: Request, res: Response) => {
   const { password, email } = req.body;
 
   try {
@@ -46,7 +46,7 @@ export const loginUser = async (req: Request, res: Response) => {
       res.status(404).send({ message: "User not found" });
       return;
     }
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       res.status(401).send({ message: "Wrong password" });
       return;
@@ -60,25 +60,30 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
-  const { email } = req.body;
-  const user = await User.findOne({ email: email });
-  if (!user) {
-    res.send({ error: 404, message: "user with this email doesnt exist" });
-    return;
-  }
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
+  const { userId } = req.params;
+  const { username, phoneNumber, vehicleType, licenseNum } = req.body;
   try {
-    await User.deleteOne({ email: email });
-    res.send({ message: "user deleted" }).status(200);
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { username, phoneNumber, vehicleType, licenseNum },
+      { new: true, runValidators: true }
+    ).select("-passwordHash");
+
+    if (!user) {
+      res.status(404).send({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).send({ message: "User updated", user });
   } catch (err) {
-    res.status(500).send({ error: err, message: "somethings wrong" });
+    res.status(500).send({ error: err, message: "Something went wrong" });
   }
 };
 
 export const getUser = async (req: Request, res: Response) => {
   try {
-    const { _id, name, surname, email, gender } = req.body;
-    const user = { _id, name, surname, email, gender  };
+    const { user } = req.body;
     res.status(200).send({ user, message: "here it is" });
   } catch (error) {
     res.status(404).send({ error, message: "Resource not found" });
@@ -91,23 +96,24 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
 
     // Find user by email
     const user = await User.findOne({ email }); // Correctly query by email
+    
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
     // Verify old password
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    const isMatch = await bcrypt.compare(oldPassword, user.passwordHash);
     if (!isMatch) {
       res.status(400).json({ error: "Old password is incorrect" });
       return;
     }
 
     // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 8);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update password
-    user.password = hashedPassword;
+    user.passwordHash = hashedPassword;
     await user.save();
 
     res.status(200).json({ message: "Password reset successfully" });
@@ -116,24 +122,3 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const updateUserProfile = async (req: Request, res:Response ) => {
-  try {
-    const userId = req.body._id;
-    const { name, surname, gender, vehicleType, licenseNumber } = req.body;
-
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { name, surname, gender, vehicleType, licenseNumber },
-      { new: true, runValidators: true }
-    ). select("-password"); //exclude password
-
-    if (!updatedUser) {
-      res.status(404).send({ message: "User not found" });
-      return;
-    }
-
-    res.status(200).send({ user: updatedUser, message: "Profile updated successful" });
-  } catch (error) {
-    res.status(500).send({ error: "Server error" });
-  }
-};
