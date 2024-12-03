@@ -19,5 +19,6 @@ export type StackParams = {
     toMarker: IMarker | null;
   };
   FinishRide: undefined;
+  Profile: undefined;
   Search: { field: "From" | "To"; setField: (newValue: string) => void };
 };

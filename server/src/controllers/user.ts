@@ -84,3 +84,56 @@ export const getUser = async (req: Request, res: Response) => {
     res.status(404).send({ error, message: "Resource not found" });
   }
 };
+
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ email }); // Correctly query by email
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    // Verify old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      res.status(400).json({ error: "Old password is incorrect" });
+      return;
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 8);
+
+    // Update password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const updateUserProfile = async (req: Request, res:Response ) => {
+  try {
+    const userId = req.body._id;
+    const { name, surname, gender, vehicleType, licenseNumber } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { name, surname, gender, vehicleType, licenseNumber },
+      { new: true, runValidators: true }
+    ). select("-password"); //exclude password
+
+    if (!updatedUser) {
+      res.status(404).send({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).send({ user: updatedUser, message: "Profile updated successful" });
+  } catch (error) {
+    res.status(500).send({ error: "Server error" });
+  }
+};

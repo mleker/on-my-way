@@ -1,10 +1,13 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
+import { TouchableOpacity } from "react-native";
+import Icon from "react-native-vector-icons/Ionicons"; // Import an icon library
 import { Text, TouchableOpacity } from "react-native";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import CreateRide from "./screens/CreateRide";
+import CreateRide from "./screens/createride";
 import Landing from "./screens/Landing";
 import Login from "./screens/Login";
+import Profile from "./screens/Profile";
 import RequestRide from "./screens/RequestRide";
 import RequestStatus from "./screens/RequestStatus";
 import RideStatus from "./screens/RideStatus";
@@ -25,14 +28,18 @@ const App = () => {
 };
 
 const Layout = () => {
-  const { authState, onLogout } = useAuth();
+  const { authState } = useAuth();
 
-  const renderHeaderRight = () => {
+  // Updated header to show profile icon
+  const renderHeaderRight = (navigation: any) => {
     return (
-      <TouchableOpacity onPress={onLogout}>
-        <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
-          SIGN OUT
-        </Text>
+      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+        <Icon
+          name="person-circle-outline" // Profile icon from Ionicons
+          size={28}
+          color="white"
+          style={{ marginRight: 15 }}
+        />
       </TouchableOpacity>
     );
   };
@@ -56,36 +63,43 @@ const Layout = () => {
           <Stack.Screen
             name="Landing"
             component={Landing}
-            options={{
-              headerRight: () => renderHeaderRight(),
-            }}
+            options={({ navigation }) => ({
+              headerRight: () => renderHeaderRight(navigation),
+            })}
           />
           <Stack.Screen
             name="CreateRide"
             component={CreateRide}
-            options={{
-              headerRight: () => renderHeaderRight(),
-            }}
+            options={({ navigation }) => ({
+              headerRight: () => renderHeaderRight(navigation),
+            })}
           />
           <Stack.Screen
             name="RequestRide"
             component={RequestRide}
-            options={{
-              headerRight: () => renderHeaderRight(),
-            }}
+            options={({ navigation }) => ({
+              headerRight: () => renderHeaderRight(navigation),
+            })}
           />
           <Stack.Screen
             name="RequestStatus"
             component={RequestStatus}
-            options={{
-              headerRight: () => renderHeaderRight(),
-            }}
+            options={({ navigation }) => ({
+              headerRight: () => renderHeaderRight(navigation),
+            })}
           />
           <Stack.Screen
             name="RideStatus"
             component={RideStatus}
+            options={({ navigation }) => ({
+              headerRight: () => renderHeaderRight(navigation),
+            })}
+          />
+          <Stack.Screen
+            name="Profile"
+            component={Profile}
             options={{
-              headerRight: () => renderHeaderRight(),
+              headerTitle: "Profile",
             }}
           />
           <Stack.Screen
@@ -96,20 +110,8 @@ const Layout = () => {
         </>
       ) : (
         <>
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{
-              headerBackVisible: false,
-            }}
-          />
-          <Stack.Screen
-            name="SignUp"
-            component={SignUp}
-            options={{
-              headerBackVisible: false,
-            }}
-          />
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="SignUp" component={SignUp} />
         </>
       )}
     </Stack.Navigator>
