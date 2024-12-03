@@ -7,4 +7,5 @@ export type StackParams = {
   RideStatus: { from: string; to: string };
   RequestStatus: { from: string; to: string };
   FinishRide: undefined;
+  Profile: undefined;
 };
