@@ -1,21 +1,24 @@
-import { NavigationProp, useNavigation, useRoute } from "@react-navigation/native";
-import React, { useState } from "react";
 import {
-  Alert,
-  View
-} from "react-native";
-import { IRoute, RideStatusEnum } from '../@types/ride';
-import { IRider } from '../@types/rider';
-import { RoutesEnum } from '../@types/routes';
-import { StackParams } from '../@types/stack';
-import RideInProgress from '../components/RideInProgress';
-import RidePending from '../components/RidePending';
-import RidePickUp from '../components/RidePickUp';
+  NavigationProp,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import React, { useState } from "react";
+import { Alert, View } from "react-native";
+import { IRoute, RideStatusEnum } from "../@types/ride";
+import { IRider } from "../@types/rider";
+import { RoutesEnum } from "../@types/routes";
+import { StackParams } from "../@types/stack";
+import RideInProgress from "../components/RideInProgress";
+import RidePending from "../components/RidePending";
+import RidePickUp from "../components/RidePickUp";
 
 const RideStatus: React.FC = () => {
   const navigation = useNavigation<NavigationProp<StackParams>>();
   const [rideStatus, setRideStatus] = useState(RideStatusEnum.PENDING);
   const [selectedRider, setSelectedRider] = useState<IRider | null>(null);
+  const route = useRoute();
+  const { fromMarker }: any = route.params;
 
   const handleCancelRide = () => {
     Alert.alert("Ride Cancelled", "Your ride has been cancelled.");
@@ -32,7 +35,7 @@ const RideStatus: React.FC = () => {
 
   return (
     <View className="flex-1 bg-white">
-      {(rideStatus === RideStatusEnum.PENDING) ? (
+      {rideStatus === RideStatusEnum.PENDING ? (
         <RidePending
           onRiderSelect={(rider: IRider) => {
             setSelectedRider(rider);
@@ -40,19 +43,16 @@ const RideStatus: React.FC = () => {
           }}
           onCancel={handleCancelRide}
         />
-      ) : (rideStatus === RideStatusEnum.PICK_UP && selectedRider) ? (
+      ) : rideStatus === RideStatusEnum.PICK_UP && selectedRider ? (
         <RidePickUp
           onCancel={handleCancelRide}
           onStart={() => setRideStatus(RideStatusEnum.IN_PROGRESS)}
           rider={selectedRider}
+          riderLoc={fromMarker}
         />
-      ) : (rideStatus === RideStatusEnum.IN_PROGRESS && selectedRider) ? (
-        <RideInProgress
-          rider={selectedRider}
-          onFinish={handleFinishRide}
-        />
-      ) : null
-      }
+      ) : rideStatus === RideStatusEnum.IN_PROGRESS && selectedRider ? (
+        <RideInProgress rider={selectedRider} onFinish={handleFinishRide} />
+      ) : null}
     </View>
   );
 };

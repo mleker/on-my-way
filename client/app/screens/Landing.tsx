@@ -1,10 +1,10 @@
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { StackParams } from '../@types/stack';
-import { IUser } from '../@types/user';
+import { StackParams } from "../@types/stack";
+import { IUser } from "../@types/user";
 import { useAuth } from "../context/AuthContext";
-import { RoutesEnum } from '../@types/routes';
+import { RoutesEnum } from "../@types/routes";
 
 const Landing: React.FC = () => {
   const { authState, onProfile } = useAuth();
@@ -42,9 +42,7 @@ const Landing: React.FC = () => {
         className="py-4 w-full border-4 border-black border-solid h-1/4 justify-center"
         onPress={() => navigation.navigate(RoutesEnum.REQUEST_RIDE)}
       >
-        <Text className="text-center font-bold text-2xl">
-          REQUEST RIDE
-        </Text>
+        <Text className="text-center font-bold text-2xl">REQUEST RIDE</Text>
       </TouchableOpacity>
     </View>
   );

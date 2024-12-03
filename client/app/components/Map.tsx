@@ -1,23 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Alert } from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { StackParams } from "../@types/stack";
-import { RoutesEnum } from "../@types/routes";
-import MapViewDirections from "react-native-maps-directions";
+import React, { useEffect, useState } from "react";
 import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
+import { TextInput, View, Text, TouchableOpacity, Alert } from "react-native";
 import * as Location from "expo-location";
-
-interface IRegion {
-  latitude: number;
-  longitude: number;
-  latitudeDelta: number;
-  longitudeDelta: number;
-}
-
-export interface IMarker {
-  latitude: number;
-  longitude: number;
-}
 
 const initReg = {
   latitude: 51.1657,
@@ -26,30 +11,27 @@ const initReg = {
   longitudeDelta: 10,
 };
 
-const RequestRide: React.FC = () => {
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [loca, setLoca] = useState<IMarker | null>(null);
-  const navigation = useNavigation<NavigationProp<StackParams>>();
+export interface IRegion {
+  latitude: number;
+  longitude: number;
+  latitudeDelta: number;
+  longitudeDelta: number;
+}
+
+interface IMarker {
+  latitude: number;
+  longitude: number;
+}
+
+export default function Map({ navigation }: any) {
   const [reg, setReg] = useState<IRegion>(initReg);
+  const [from, setFrom] = useState<string>("");
+  const [to, setTo] = useState<string>("");
   const [fromMarker, setFromMarker] = useState<IMarker | null>(null);
   const [toMarker, setToMarker] = useState<IMarker | null>(null);
   const [apiKey] = useState<string | undefined>(
     process.env.EXPO_PUBLIC_API_KEY
   );
-
-  const handleCreateRequest = () => {
-    if (from && to) {
-      navigation.navigate(RoutesEnum.REQUEST_STATUS, {
-        from,
-        to,
-        fromMarker,
-        toMarker,
-      });
-    } else {
-      alert("Please enter both From and To locations");
-    }
-  };
 
   const getPermission = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -61,10 +43,6 @@ const RequestRide: React.FC = () => {
   const getLocation = async () => {
     const location = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.High,
-    });
-    setLoca({
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
     });
     setReg({
       latitude: location.coords.latitude,
@@ -86,6 +64,7 @@ const RequestRide: React.FC = () => {
         const { lat, lng } = data.results[0].geometry.location;
         return { latitude: lat, longitude: lng };
       } else {
+        Alert.alert("Error", `Could not find location for "${address}"`);
         return null;
       }
     } catch (error) {
@@ -95,7 +74,11 @@ const RequestRide: React.FC = () => {
     }
   };
 
-  const createMarkers = async () => {
+  const createRide = async () => {
+    if (!from || !to) {
+      Alert.alert("Error", "Please enter both From and To addresses");
+      return;
+    }
     const fromCoords = await geocodeAddress(from);
     const toCoords = await geocodeAddress(to);
 
@@ -115,25 +98,23 @@ const RequestRide: React.FC = () => {
   useEffect(() => {
     getPermission();
     getLocation();
-    createMarkers();
-  }, [from, to]);
-
-  const navigateToSearch = (field: "From" | "To") => {
-    navigation.navigate(RoutesEnum.SEARCH, {
-      field,
-      setField: (newValue: string) => {
-        if (field === "From") setFrom(newValue);
-        else setTo(newValue);
-      },
-    });
-  };
+  }, []);
 
   return (
-    <View className="flex-1 bg-white">
-      {/* Map placeholder */}
-      <View className="h-1/2">
+    <View className="flex-1">
+      <View className="bg-black flex-row justify-between items-center px-4 py-3">
+        <Text className="text-white text-lg font-bold">ON MY WAY</Text>
+        <TouchableOpacity
+          className="bg-white rounded-full p-2"
+          onPress={() => navigation.navigate("Home")}
+        >
+          <Text className="text-black text-center">👤</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View className="flex-1">
         <MapView
-          className="flex-1 h-full mb-4"
+          style={{ flex: 1 }}
           initialRegion={reg}
           region={reg}
           provider={PROVIDER_GOOGLE}
@@ -171,27 +152,26 @@ const RequestRide: React.FC = () => {
         </MapView>
       </View>
 
-      <TouchableOpacity
-        className="bg-white border border-black p-3 text-lg mx-4 mb-4"
-        onPress={() => navigateToSearch("From")}
-      >
-        <Text className="text-black">{from || "From"}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        className="bg-white border border-black p-3 text-lg mx-4 mb-4"
-        onPress={() => navigateToSearch("To")}
-      >
-        <Text className="text-black">{to || "To"}</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        className="bg-black mx-4 p-4 items-center"
-        onPress={handleCreateRequest}
-      >
-        <Text className="text-lg font-bold text-white">REQUEST RIDE</Text>
-      </TouchableOpacity>
+      <View className="bg-white p-5">
+        <TextInput
+          className="border border-black rounded px-4 py-2 mb-4"
+          placeholder="from"
+          value={from}
+          onChangeText={(text) => setFrom(text)}
+        />
+        <TextInput
+          className="border border-black rounded px-4 py-2 mb-4"
+          placeholder="to"
+          value={to}
+          onChangeText={(text) => setTo(text)}
+        />
+        <TouchableOpacity
+          className="bg-gray-400 py-3 rounded items-center"
+          onPress={createRide}
+        >
+          <Text className="text-white text-lg font-bold">CREATE RIDE</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-};
-
-export default RequestRide;
+}

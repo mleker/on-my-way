@@ -6,4 +6,6 @@ export enum RoutesEnum {
   REGISTER = 'Register',
   RIDE_STATUS = 'RideStatus',
   REQUEST_STATUS = 'RequestStatus',
+  PROFILE = "Profile",
+  SEARCH = "Search",
 };

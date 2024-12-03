@@ -129,7 +129,7 @@ const RidePending: React.FC<IRidePending> = ({ onRiderSelect, onCancel }) => {
         keyExtractor={(rider) => rider.id}
         renderItem={({ item: rider }) => (
           <TouchableOpacity
-            className={`border-solid border-black border-4 p-4 mb-4 
+            className={`border-solid border-black border-4 p-4 mb-4
                 ${selectedRider === rider.id ? "bg-black text-white" : "text-black bg-white"}`
             }
             onPress={() => handleSelectRider(rider)}

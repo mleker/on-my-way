@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import request from "../models/request";
+import request, { RequestStatus } from "../models/request";
 
 export const getRequests = async (req: Request, res: Response) => {
   try {
@@ -14,14 +14,15 @@ export const getRequests = async (req: Request, res: Response) => {
 };
 
 export const createRequest = async (req: Request, res: Response) => {
-  const { riderId, location, destination } = req.body;
+  const { riderId, from, to } = req.body;
   try {
     await request.create({
       riderId,
-      status: "pending",
-      location,
-      destination,
+      from,
+      to,
       createdAt: Date.now(),
+      status: RequestStatus.PENDING,
+      estimatedFare: 0,
     });
     res.status(201).send({ message: "req created" });
   } catch (err) {
@@ -32,8 +33,8 @@ export const createRequest = async (req: Request, res: Response) => {
 export const deleteRequest = async (req: Request, res: Response) => {
   const { riderId } = req.body;
   try {
-    const rq = await request.findOne({ riderId });
-    if (!rq) {
+    const req = await request.findOne({ riderId });
+    if (!req) {
       res.status(404).send({ message: "Request not found" });
       return;
     }
@@ -44,20 +45,53 @@ export const deleteRequest = async (req: Request, res: Response) => {
   }
 };
 
-export const acceptRequest = async (req: Request, res: Response) => {
-  const { riderId } = req.body;
+export const matchRequest = async (req: Request, res: Response) => {
+  const { riderId, driverId } = req.body;
   try {
-    const rq = await request.findOne({ riderId });
-    if (!rq) {
+    const req = await request.findOne({ riderId });
+    if (!req) {
       res.status(404).send({ message: "Request not found" });
       return;
     }
-    if (rq.status === "accepted") {
-      res.status(409).send({ message: "request already accepted" });
+    if (req.status === RequestStatus.MATCHED) {
+      res.status(409).send({ message: "request already matched" });
+      return;
     }
-    await rq.updateOne({ status: "accepted" });
-    res.status(200).send({ message: "request accepted" });
+    await req.updateOne({ status: RequestStatus.MATCHED, driverId });
+    res.status(200).send({ message: "request matched" });
   } catch (err) {
     res.status(500).send({ error: err, message: "somethings wrong" });
+  }
+};
+
+export const cancelRequest = async (req: Request, res: Response) => {
+  const { riderId } = req.body;
+  try {
+    const req = await request.findOne({ riderId });
+    if (!req) {
+      res.status(404).send({ message: "Request not found" });
+      return;
+    }
+    if (req.status === RequestStatus.CANCELLED) {
+      res.status(409).send({ message: "Request already cancelled" });
+      return;
+    }
+    await req.updateOne({ status: RequestStatus.CANCELLED });
+    res.status(200).send({ message: "Request cancelled" });
+  } catch (err) {
+    res.status(500).send({ error: err, message: "Something went wrong" });
+  }
+};
+
+export const getActiveRequests = async (req: Request, res: Response) => {
+  try {
+    const activeRequests = await request.find({ status: RequestStatus.PENDING });
+    if (activeRequests.length < 1) {
+      res.status(200).send({ message: "No active requests" });
+      return;
+    }
+    res.status(200).send(activeRequests);
+  } catch (err) {
+    res.status(500).send({ error: err, message: "Something went wrong" });
   }
 };
