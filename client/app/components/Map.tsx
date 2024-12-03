@@ -11,7 +11,7 @@ const initReg = {
   longitudeDelta: 10,
 };
 
-interface IRegion {
+export interface IRegion {
   latitude: number;
   longitude: number;
   latitudeDelta: number;
@@ -32,6 +32,7 @@ export default function Map({ navigation }: any) {
   const [apiKey] = useState<string | undefined>(
     process.env.EXPO_PUBLIC_API_KEY
   );
+
   const getPermission = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {

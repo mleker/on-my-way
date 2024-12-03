@@ -1,20 +1,22 @@
-import { NavigationProp, useNavigation, useRoute } from "@react-navigation/native";
-import React, { useState } from "react";
 import {
-  Alert,
-  View
-} from "react-native";
-import { IDriver, MockDrivers } from '../@types/driver';
-import { RequestStatusEnum } from '../@types/request';
-import { RideStatusEnum } from '../@types/ride';
-import { RoutesEnum } from '../@types/routes';
-import { StackParams } from '../@types/stack';
-import RequestPending from '../components/RequestPending';
-import RideInProgress from '../components/RideInProgress';
-import RidePickUp from '../components/RidePickUp';
+  NavigationProp,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import React, { useState } from "react";
+import { Alert, View } from "react-native";
+import { IDriver, MockDrivers } from "../@types/driver";
+import { RequestStatusEnum } from "../@types/request";
+import { RideStatusEnum } from "../@types/ride";
+import { RoutesEnum } from "../@types/routes";
+import { StackParams } from "../@types/stack";
+import RequestPending from "../components/RequestPending";
+import RideInProgress from "../components/RideInProgress";
+import RidePickUp from "../components/RidePickUp";
 
 const RequestStatus: React.FC = () => {
   const route = useRoute();
+  const { fromMarker }: any = route.params;
   const navigation = useNavigation<NavigationProp<StackParams>>();
   const [requestStatus, setRequestStatus] = useState(RequestStatusEnum.PENDING);
   const [driver, setDriver] = useState<IDriver | null>(null);
@@ -44,28 +46,25 @@ const RequestStatus: React.FC = () => {
     setDriver(null);
     setRequestStatus(RequestStatusEnum.CANCELLED);
     navigation.navigate(RoutesEnum.LANDING);
-  }
+  };
 
   return (
     <View className="flex-1 bg-white">
-      {(requestStatus === RequestStatusEnum.PENDING) ? (
+      {requestStatus === RequestStatusEnum.PENDING && !driver  ? (
         <RequestPending
           onDriverMatched={handleDriverMatched}
           onCancel={handleCancelRequest}
         />
-      ) : (requestStatus === RequestStatusEnum.PICK_UP && driver) ? (
+      ) : requestStatus === RequestStatusEnum.PENDING && driver ? (
         <RidePickUp
           onCancel={handleCancelRide}
           onStart={() => setRequestStatus(RequestStatusEnum.MATCHED)}
           driver={driver}
+          riderLoc={fromMarker}
         />
-      ) : (requestStatus === RequestStatusEnum.MATCHED && driver) ? (
-        <RideInProgress
-          onFinish={handleFinishRide}
-          driver={driver}
-        />
-      ) : null
-      }
+      ) : requestStatus === RequestStatusEnum.MATCHED && driver ? (
+        <RideInProgress onFinish={handleFinishRide} driver={driver} />
+      ) : null}
     </View>
   );
 };

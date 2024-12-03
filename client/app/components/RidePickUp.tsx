@@ -1,23 +1,43 @@
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
-import MapView, { Marker, Polyline } from "react-native-maps";
-import { IRider } from '../@types/rider';
-import { IDriver } from '../@types/driver';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
+import { IRider } from "../@types/rider";
+import { IDriver } from "../@types/driver";
+import { IMarker } from "../screens/RequestRide";
+import MapViewDirections from "react-native-maps-directions";
+import { IRegion } from "./Map";
 
 interface IRidePickUp {
   rider?: IRider;
   driver?: IDriver;
   onStart: () => void;
   onCancel: () => void;
+  riderLoc: IMarker | null;
 }
 
-const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel }) => {
-  const [location, setLocation] = useState<any>(null);
+const initReg = {
+  latitude: 51.1657,
+  longitude: 10.4515,
+  latitudeDelta: 6,
+  longitudeDelta: 10,
+};
+
+const RidePickUp: React.FC<IRidePickUp> = ({
+  rider,
+  driver,
+  onStart,
+  onCancel,
+  riderLoc,
+}) => {
+  const [reg, setReg] = useState<IRegion>(initReg);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [time, setTime] = useState<number | null>(null);
+  const [apiKey] = useState<string | undefined>(
+    process.env.EXPO_PUBLIC_API_KEY
+  );
 
   const handleDirections = () => {
     Alert.alert("Directions", "Open Google Maps for directions.");
@@ -36,7 +56,6 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel })
     onStart();
   };
 
-  // Mock locations for Berlin Airport and Kreuzberg
   const dropOffLocation = {
     latitude: 52.4934, // Kreuzberg, Berlin
     longitude: 13.4233,
@@ -54,8 +73,6 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel })
         setErrorMsg("Permission to access location was denied.");
         return;
       }
-
-      setLocation(driverLocation); // Using mock driver's location
 
       // Calculate distance and time
       const distanceToDropOff = calculateDistance(
@@ -87,9 +104,9 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel })
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c; // Distance in km
     return distance.toFixed(1); // Round to 1 decimal place
@@ -105,38 +122,32 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel })
     return () => clearTimeout(timeout);
   }, [driver, onStart]);
 
+  // useEffect(() => {
+  //   setReg({
+  //     latitude: riderLoc?.latitude as number,
+  //     longitude: riderLoc?.longitude as number,
+  //     latitudeDelta: Math.abs(riderLoc?.latitude as number),
+  //     longitudeDelta: Math.abs(riderLoc?.longitude as number),
+  //   });
+  // }, []);
+
   return (
     <>
       {/* Map Section */}
       <MapView
         className="flex-1 h-72 mb-4"
-        initialRegion={{
-          latitude: 52.520008,
-          longitude: 13.404954,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
-        }}
+        initialRegion={reg}
+        region={reg}
+        provider={PROVIDER_GOOGLE}
+        showsUserLocation
+        showsMyLocationButton
       >
         <Marker
-          coordinate={{
-            latitude: 52.520008,
-            longitude: 13.404954,
-          }}
-          title="Driver"
-          description="Your current location"
+          coordinate={riderLoc as IMarker}
+          title={rider?.name ? rider.name : "lol"}
+          description="Rider pickup location"
           pinColor="blue"
         />
-        {rider && (
-          <Marker
-            coordinate={{
-              latitude: 52.499508,
-              longitude: 13.397634,
-            }}
-            title={rider.name}
-            description="Passenger Pickup Location"
-            pinColor="green"
-          />
-        )}
         {driver && (
           <Marker
             coordinate={{
@@ -148,13 +159,18 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel })
             pinColor="green"
           />
         )}
-        <Polyline
-          coordinates={[
-            { latitude: 52.520008, longitude: 13.404954 },
-            { latitude: 52.499508, longitude: 13.397634 },
-          ]}
-          strokeColor="#0000FF"
-          strokeWidth={3}
+        <MapViewDirections
+          origin={riderLoc as IMarker}
+          destination={{
+            latitude: 52.499508,
+            longitude: 13.397634,
+          }}
+          apikey={apiKey as string}
+          strokeWidth={4}
+          strokeColor="black"
+          onError={(errorMessage) =>
+            console.error("Directions API error:", errorMessage)
+          }
         />
       </MapView>
 
@@ -162,20 +178,16 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel })
       <View className="p-4 mb-4 items-center">
         {rider && (
           <Text className="text-xl text-center">
-            Your passenger {" "}
-            <Text className='text-xl font-bold'>
-              {rider?.name}{" "}
-            </Text>
+            Your passenger{" "}
+            <Text className="text-xl font-bold">{rider?.name} </Text>
             is ~{rider.time} mins away and waiting for you
           </Text>
         )}
 
         {driver && (
           <Text className="text-xl text-center">
-            Your driver {" "}
-            <Text className='text-xl font-bold'>
-              {driver?.name}{" "}
-            </Text>
+            Your driver{" "}
+            <Text className="text-xl font-bold">{driver?.name} </Text>
             is coming for you in ~{driver.time} mins
           </Text>
         )}
@@ -189,7 +201,9 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel })
           </TouchableOpacity>
           <TouchableOpacity
             className="bg-black rounded-full p-4"
-            onPress={() => handleChat(rider ? (rider.name) : (driver?.name || "Driver"))}
+            onPress={() =>
+              handleChat(rider ? rider.name : driver?.name || "Driver")
+            }
           >
             <Ionicons
               name="chatbubble-ellipses-outline"
@@ -199,7 +213,9 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel })
           </TouchableOpacity>
           <TouchableOpacity
             className="bg-black rounded-full p-4"
-            onPress={() => handleCall(rider ? (rider.name) : (driver?.name || "Driver"))}
+            onPress={() =>
+              handleCall(rider ? rider.name : driver?.name || "Driver")
+            }
           >
             <Ionicons name="call-outline" size={24} color="#FFFFFF" />
           </TouchableOpacity>
@@ -219,7 +235,9 @@ const RidePickUp: React.FC<IRidePickUp> = ({ rider, driver, onStart, onCancel })
             className="flex-1 border-red-500 border-solid border-4 p-4 items-center"
             onPress={onCancel}
           >
-            <Text className="text-red-500 font-bold text-base">CANCEL RIDE</Text>
+            <Text className="text-red-500 font-bold text-base">
+              CANCEL RIDE
+            </Text>
           </TouchableOpacity>
         </View>
       )}

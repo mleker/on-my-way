@@ -7,4 +7,5 @@ export enum RoutesEnum {
   RIDE_STATUS = 'RideStatus',
   REQUEST_STATUS = 'RequestStatus',
   PROFILE = "Profile",
+  SEARCH = "Search",
 };

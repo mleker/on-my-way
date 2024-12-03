@@ -13,7 +13,9 @@ interface IAuthProps {
     email: string,
     password: string,
     name: string,
-    surname: string
+    surname: string,
+    vehicleType: string,
+    licenceNum: string
   ) => Promise<any>;
   onLogout: () => Promise<any>;
   onProfile: (token: string) => Promise<any>;
@@ -48,7 +50,9 @@ export const AuthProvider = ({ children }: any) => {
     email: string,
     password: string,
     name: string,
-    surname: string
+    surname: string,
+    vehicleType: string,
+    licenseNum: string
   ) => {
     try {
       const res = await fetch(`${process.env.EXPO_PUBLIC_BASE_URL}/reg`, {
@@ -56,7 +60,7 @@ export const AuthProvider = ({ children }: any) => {
         credentials: "include",
         mode: "cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, surname }),
+        body: JSON.stringify({ email, password, name, surname, vehicleType, licenseNum }),
       }).then((res) => res.json());
       if (res.token) {
         const { token } = res;
@@ -78,7 +82,10 @@ export const AuthProvider = ({ children }: any) => {
         mode: "cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-      }).then((res) => res.json());
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+
       if (res.token) {
         const { token } = res;
         setAuthState({ token, authenticated: true }); // No changes here.

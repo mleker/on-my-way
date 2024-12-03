@@ -2,22 +2,27 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons"; // Import an icon library
+import { Text, TouchableOpacity } from "react-native";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import CreateRide from "./screens/createride";
 import Landing from "./screens/Landing";
 import Login from "./screens/Login";
-import RequestRide from "./screens/requestride";
-import RequestStatus from "./screens/RequestStatus";
-import RideStatus from "./screens/ridestatus";
-import SignUp from "./screens/SignUp";
 import Profile from "./screens/Profile";
+import RequestRide from "./screens/RequestRide";
+import RequestStatus from "./screens/RequestStatus";
+import RideStatus from "./screens/RideStatus";
+import SignUp from "./screens/SignUp";
+import AddressSearch from "./screens/AddressSearch";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
     <AuthProvider>
-      <Layout />
+      <SafeAreaProvider>
+        <Layout />
+      </SafeAreaProvider>
     </AuthProvider>
   );
 };
@@ -96,6 +101,11 @@ const Layout = () => {
             options={{
               headerTitle: "Profile",
             }}
+          />
+          <Stack.Screen
+            name={"Search"}
+            component={AddressSearch}
+            options={{ title: "Search Address" }}
           />
         </>
       ) : (
