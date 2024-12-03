@@ -9,7 +9,7 @@ export const getRides = async (req: Request, res: Response) => {
     }
     res.status(200).send(rides);
   } catch (err) {
-    res.status(500).send({ error: err, message: "somethings wrong" });
+    res.status(500).send({ error: err, message: "something wrong" });
   }
 };
 
@@ -25,7 +25,7 @@ export const createRide = async (req: Request, res: Response) => {
     });
     res.status(201).send({ message: "Ride created" });
   } catch (err) {
-    res.status(500).send({ error: err, message: "somethings wrong" });
+    res.status(500).send({ error: err, message: "something wrong" });
   }
 };
 
@@ -40,7 +40,7 @@ export const deleteRide = async (req: Request, res: Response) => {
     await Ride.deleteOne({ driverId });
     res.status(200).send({ message: "Ride deleted" });
   } catch (err) {
-    res.status(500).send({ error: err, message: "somethings wrong" });
+    res.status(500).send({ error: err, message: "something wrong" });
   }
 };
 
@@ -58,7 +58,7 @@ export const startRide = async (req: Request, res: Response) => {
     await ride.updateOne({ status: RideStatus.IN_PROGRESS });
     res.status(200).send({ message: "ride in progress" });
   } catch (err) {
-    res.status(500).send({ error: err, message: "somethings wrong" });
+    res.status(500).send({ error: err, message: "something wrong" });
   }
 };
 
@@ -73,6 +73,6 @@ export const completeRide = async (req: Request, res: Response) => {
     await ride.updateOne({ status: RideStatus.FINISHED });
     res.status(200).send({ message: "ride completed" });
   } catch (err) {
-    res.status(500).send({ error: err, message: "somethings wrong" });
+    res.status(500).send({ error: err, message: "something wrong" });
   }
 };

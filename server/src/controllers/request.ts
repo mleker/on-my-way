@@ -58,7 +58,7 @@ export const matchRequest = async (req: Request, res: Response) => {
       return;
     }
     await req.updateOne({ status: RequestStatus.MATCHED, driverId });
-    res.status(200).send({ message: "request mmatched" });
+    res.status(200).send({ message: "request matched" });
   } catch (err) {
     res.status(500).send({ error: err, message: "somethings wrong" });
   }
