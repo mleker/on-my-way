@@ -1,10 +1,14 @@
+import cors from "cors";
+import dotenv from "dotenv";
 import express from "express";
-import userRoutes from "./routes/userRoutes";
+import http from "http";
+import mongoose from "mongoose";
+import { Server } from "socket.io";
 import requestRoutes from "./routes/requestRoutes";
 import rideRoutes from "./routes/rideRoutes";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import cors from "cors";
+import userRoutes from "./routes/userRoutes";
+import seedDb from './seed';
+import { onSocketConnection } from './socket';
 
 dotenv.config();
 
@@ -13,9 +17,11 @@ if (!process.env.MONGODB_URI) {
 }
 
 const PORT = process.env.PORT || 3000;
-const mongodbUri: string = process.env.MONGODB_URI;
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
 app.use(cors());
 app.use(express.json());
 
@@ -24,14 +30,29 @@ app.use("/api/users", userRoutes);
 app.use("/api/requests", requestRoutes);
 app.use("/api/rides", rideRoutes);
 
-mongoose
-  .connect(mongodbUri, {})
-  .then(() => {
-    console.log("MongoDB connected successfully");
-    app.listen(PORT, () =>
-      console.log(`Server running on http://localhost:${PORT}`)
-    );
-  })
-  .catch((error: Error) => {
-    console.error("Error connecting to database:", error);
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/onmywaydb");
+    console.log("MongoDB connected");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  }
+};
+
+// Socket.io connection logic
+io.on("connection", (socket) => onSocketConnection(socket, io));
+
+const startServer = async () => {
+  await connectDB();
+  await seedDb();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
+};
+
+startServer();
+
+
+

@@ -1,10 +1,26 @@
 import mongoose from "mongoose";
 
+export enum RequestStatus {
+  PENDING = "pending",
+  MATCHED = "matched",
+  CANCELLED = "cancelled",
+}
+
 const requestSchema = new mongoose.Schema({
-  riderId: { type: String, required: true },
-  status: { type: String, required: true },
-  location: { type: String, required: true },
-  destination: { type: String, required: true },
-  createdAt: { type: Date, required: true },
+  riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  from: {
+    name: { type: String, required: true },
+    longitude: { type: Number, required: true },
+    latitude: { type: Number, required: true }
+  },
+  to: {
+    name: { type: String, required: true },
+    longitude: { type: Number, required: true },
+    latitude: { type: Number, required: true }
+  },
+  startTime: { type: Date, default: Date.now },
+  status: { type: String, enum: [RequestStatus.PENDING, RequestStatus.MATCHED, RequestStatus.CANCELLED], default: RequestStatus.PENDING },
+  estimatedFare: { type: Number }
 });
-export default mongoose.model("Request", requestSchema);
+
+export default mongoose.model('RideRequest', requestSchema);
