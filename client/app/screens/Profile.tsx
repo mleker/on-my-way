@@ -24,7 +24,7 @@ const Profile: React.FC = () => {
         email: res.user.email,
         phone: res.user.phone,
         vehicleType: res.user.vehicleType,
-        licenseNumber: res.user.licenseNumber,
+        licenseNumber: res.user.licenseNum,
       });
     };
     profile();
