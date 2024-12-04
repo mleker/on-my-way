@@ -3,37 +3,31 @@ import * as SecureStore from "expo-secure-store";
 
 export interface IAuthState {
   token: string | null;
-  authenticated: boolean; // Changed: Default value now `false` instead of nullable.
+  authenticated: boolean | null;
 }
 
 interface IAuthProps {
-  authState: IAuthState; // Changed: Removed `?`, ensuring `authState` is always defined.
-  onLogin: (email: string, password: string) => Promise<any>;
-  onRegister: (
+  authState?: IAuthState;
+  onLogin?: (email: string, password: string) => Promise<any>;
+  onRegister?: (
     email: string,
     password: string,
     name: string,
-    surname: string,
+    phone: string,
     vehicleType: string,
     licenceNum: string
   ) => Promise<any>;
-  onLogout: () => Promise<any>;
-  onProfile: (token: string) => Promise<any>;
+  onLogout?: () => Promise<any>;
+  onProfile?: (token: string) => Promise<any>;
 }
 
 const TOKEN_KEY = "tester2";
-const AuthContext = createContext<IAuthProps>({
-  authState: { token: null, authenticated: false }, // Changed: Added default value for context.
-  onLogin: async () => {}, // Added: Dummy functions for defaults.
-  onRegister: async () => {},
-  onLogout: async () => {},
-  onProfile: async () => {},
-});
+const AuthContext = createContext<IAuthProps>({});
 
 export const AuthProvider = ({ children }: any) => {
   const [authState, setAuthState] = useState<IAuthState>({
     token: null,
-    authenticated: false, // Changed: Default `authenticated` set to `false`.
+    authenticated: null,
   });
 
   useEffect(() => {
@@ -50,17 +44,24 @@ export const AuthProvider = ({ children }: any) => {
     email: string,
     password: string,
     name: string,
-    surname: string,
+    phone: string,
     vehicleType: string,
     licenseNum: string
   ) => {
     try {
-      const res = await fetch(`${process.env.EXPO_PUBLIC_BASE_URL}/reg`, {
+      const res = await fetch(`${process.env.EXPO_PUBLIC_BASE_URL}/register`, {
         method: "POST",
         credentials: "include",
         mode: "cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, surname, vehicleType, licenseNum }),
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          phone,
+          vehicleType,
+          licenseNum,
+        }),
       }).then((res) => res.json());
       if (res.token) {
         const { token } = res;
@@ -108,7 +109,7 @@ export const AuthProvider = ({ children }: any) => {
 
   const getProfile = async (token: string) => {
     if (!token) {
-      console.error("Token is missing for getProfile"); // Added: Error handling for missing token.
+      console.error("Token is missing for getProfile");
       return null;
     }
     try {

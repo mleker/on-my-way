@@ -22,7 +22,7 @@ const seedDB = async () => {
         name: faker.person.fullName(),
         email: faker.internet.email(),
         passwordHash: faker.internet.password(),
-        phone: faker.phone.number(), 
+        phone: faker.phone.number(),
         vehicleType: faker.vehicle.type(),
         licenseNum: faker.vehicle.vrm(),
       });

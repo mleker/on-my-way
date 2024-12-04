@@ -8,10 +8,10 @@ const initialState = {
   email: "",
   password: "",
   name: "",
-  surname: "",
   vehicleType: "",
   licenseNum: "",
   confirm: "",
+  phone: "",
 };
 
 const SignUp = ({ navigation }: any) => {
@@ -34,7 +34,7 @@ const SignUp = ({ navigation }: any) => {
         state.email,
         state.password,
         state.name,
-        state.surname,
+        state.phone,
         state.vehicleType,
         state.licenseNum
       );
@@ -48,10 +48,10 @@ const SignUp = ({ navigation }: any) => {
 
   const isDisabled =
     !state.name ||
-    !state.surname ||
     !state.email ||
     !state.password ||
-    !state.confirm;
+    !state.confirm ||
+    !state.phone;
 
   return (
     <View className="flex-1 bg-white px-8 py-10">
@@ -61,12 +61,6 @@ const SignUp = ({ navigation }: any) => {
         className="border-b border-gray-400 mb-4 py-2"
         onChangeText={(text) => handleChange(text, "name")}
         value={state.name}
-      />
-      <TextInput
-        placeholder="Surname"
-        className="border-b border-gray-400 mb-4 py-2"
-        onChangeText={(text) => handleChange(text, "surname")}
-        value={state.surname}
       />
       <TextInput
         placeholder="E-mail"
@@ -87,6 +81,12 @@ const SignUp = ({ navigation }: any) => {
         className="border-b border-gray-400 mb-4 py-2"
         onChangeText={(text) => handleChange(text, "confirm")}
         value={state.confirm}
+      />
+      <TextInput
+        placeholder="Phone number"
+        className="border-b border-gray-400 mb-4 py-2"
+        onChangeText={(text) => handleChange(text, "phone")}
+        value={state.phone}
       />
       <TextInput
         placeholder="Vehicle Type (Optional)"

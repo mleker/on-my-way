@@ -26,7 +26,7 @@ export const registerUser = async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ ...req.body, password: hashedPassword });
+    const newUser = new User({ ...req.body, passwordHash: hashedPassword });
     const savedUser = await newUser.save();
     const token = jwt.sign({ id: savedUser._id }, SECRET_KEY as string, {
       expiresIn: "1h",
@@ -83,8 +83,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 
 export const getUser = async (req: Request, res: Response) => {
   try {
-    const { user } = req.body;
-    res.status(200).send({ user, message: "here it is" });
+    res.status(200).send({ user: req.body, message: "here it is" });
   } catch (error) {
     res.status(404).send({ error, message: "Resource not found" });
   }
@@ -96,7 +95,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
 
     // Find user by email
     const user = await User.findOne({ email }); // Correctly query by email
-    
+
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;

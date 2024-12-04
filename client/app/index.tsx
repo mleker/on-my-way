@@ -1,10 +1,9 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
-import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons"; // Import an icon library
-import { Text, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import CreateRide from "./screens/createride";
+import CreateRide from "./screens/CreateRide";
 import Landing from "./screens/Landing";
 import Login from "./screens/Login";
 import Profile from "./screens/Profile";
