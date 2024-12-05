@@ -1,3 +1,5 @@
+import { ILocation } from './location';
+
 export enum RequestStatusEnum {
   PENDING = 'pending',
   MATCHED = 'matched',
@@ -9,6 +11,6 @@ export interface IRequest {
   id: string;
   riderId: string;
   status: RequestStatusEnum;
-  location: string;
-  destination: string;
+  from: ILocation;
+  to: ILocation;
 }

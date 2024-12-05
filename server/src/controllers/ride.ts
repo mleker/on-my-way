@@ -30,14 +30,14 @@ export const createRide = async (req: Request, res: Response) => {
 };
 
 export const deleteRide = async (req: Request, res: Response) => {
-  const { driverId } = req.body;
+  const { _id } = req.body;
   try {
-    const req = await Ride.findOne({ driverId });
+    const req = await Ride.findOne({ _id });
     if (!req) {
       res.status(404).send({ message: "Ride not found" });
       return;
     }
-    await Ride.deleteOne({ driverId });
+    await Ride.deleteOne({ _id });
     res.status(200).send({ message: "Ride deleted" });
   } catch (err) {
     res.status(500).send({ error: err, message: "something wrong" });
@@ -45,9 +45,9 @@ export const deleteRide = async (req: Request, res: Response) => {
 };
 
 export const startRide = async (req: Request, res: Response) => {
-  const { driverId } = req.body;
+  const { _id } = req.body;
   try {
-    const ride = await Ride.findOne({ driverId });
+    const ride = await Ride.findOne({ _id });
     if (!ride) {
       res.status(404).send({ message: "Ride not found" });
       return;
@@ -63,15 +63,33 @@ export const startRide = async (req: Request, res: Response) => {
 };
 
 export const completeRide = async (req: Request, res: Response) => {
-  const { driverId } = req.body;
+  const { _id } = req.body;
   try {
-    const ride = await Ride.findOne({ driverId });
+    const ride = await Ride.findOne({ _id });
     if (!ride) {
       res.status(404).send({ message: "Ride not found" });
       return;
     }
     await ride.updateOne({ status: RideStatus.FINISHED });
     res.status(200).send({ message: "ride completed" });
+  } catch (err) {
+    res.status(500).send({ error: err, message: "something wrong" });
+  }
+};
+
+export const cancelRider = async (req: Request, res: Response) => {
+  const { _id } = req.body;
+  try {
+    const ride = await Ride.findOne({ _id });
+    if (!ride) {
+      res.status(404).send({ message: "Ride not found" });
+      return;
+    }
+    await ride.updateOne({
+      riderId: null,
+      status: RideStatus.PENDING
+    });
+    res.status(200).send({ message: "ride cancelled" });
   } catch (err) {
     res.status(500).send({ error: err, message: "something wrong" });
   }

@@ -3,11 +3,11 @@ import { getRequests, createRequest, deleteRequest, matchRequest, cancelRequest,
 
 const router = express.Router();
 
-router.get("/get", getRequests);
-router.post("/create", createRequest);
-router.delete("/delete/:riderId", deleteRequest);
-router.patch("/match", matchRequest);
-router.patch("/cancel/:riderId", cancelRequest);
+router.get("/", getRequests);
+router.post("/", createRequest);
+router.delete("/:requestId/delete", deleteRequest);
+router.patch("/:requestId/match", matchRequest);
+router.patch("/:requestId/cancel", cancelRequest);
 router.get("/active/", getActiveRequests);
 
 export default router;

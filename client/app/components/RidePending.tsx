@@ -1,26 +1,36 @@
-import React, { useEffect, useState, useRef } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
   Alert,
   Animated,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { IRider, MockRiders } from '../@types/rider';
-import { useRoute } from '@react-navigation/native';
-import { IRoute } from '../@types/ride';
+import { IRider } from '../@types/rider';
+import { fetchRequests, fetchUser } from "../services/api-service";
+import { useRideRequestContext } from '../services/ride-request';
+import { calculateDistance } from "../utils/distance";
 
 interface IRidePending {
   onRiderSelect: (rider: IRider) => void;
   onCancel: () => void;
 }
 
+interface INearbyRider {
+  id: string;
+  name: string;
+  from: string;
+  to: string;
+  time: number;
+}
+
 const RidePending: React.FC<IRidePending> = ({ onRiderSelect, onCancel }) => {
-  const [loading, setLoading] = useState(true); // State to control the screen
+  const [loading, setLoading] = useState(true);
+  const [nearbyRiders, setNearbyRiders] = useState<INearbyRider[]>([]);
   const [selectedRider, setSelectedRider] = useState(null);
-  const { from, to } = useRoute().params as IRoute;
+  const { ride, requests, setRequests } = useRideRequestContext();
 
   const spinAnim = useRef(new Animated.Value(0)).current; // Animation state for rotation
   const scaleAnim = useRef(new Animated.Value(1)).current; // Animation state for scaling
@@ -53,15 +63,76 @@ const RidePending: React.FC<IRidePending> = ({ onRiderSelect, onCancel }) => {
     );
     pulse.start();
 
-    // Timeout to stop loading after 4 seconds
-    const timeout = setTimeout(() => {
-      setLoading(false); // Stop showing the loader
-      spin.stop();
-      pulse.stop();
-    }, 4000);
+    const fetchNearbyRiders = async () => {
+      try {
+        const requests = await fetchRequests();
+        setRequests(requests);
+
+        if (!ride) {
+          throw new Error("Ride not found");
+        }
+
+        const { from, to } = ride;
+
+        const nearbyRequests = requests
+          .filter((req) => {
+            const distance = calculateDistance(
+              from.latitude,
+              from.longitude,
+              req.from.latitude,
+              req.from.longitude
+            );
+            return distance <= 2; // Filter within 2 km radius
+          })
+          .sort((a, b) => {
+            const distA = calculateDistance(
+              from.latitude,
+              from.longitude,
+              a.from.latitude,
+              a.from.longitude
+            );
+            const distB = calculateDistance(
+              from.latitude,
+              from.longitude,
+              b.from.latitude,
+              b.from.longitude
+            );
+            return distA - distB; // Sort by proximity
+          });
+        
+        // Get nearby riders
+        let nearbyRiders: INearbyRider[] = [];
+        await Promise.all(
+          nearbyRequests.map(async (req) => {
+            const rider = await fetchUser(req.riderId);
+            nearbyRiders.push({
+              id: rider._id,
+              name: rider.name,
+              from: req.from.name,
+              to: req.to.name,
+              time: Math.round(
+                calculateDistance(
+                  from.latitude,
+                  from.longitude,
+                  req.from.latitude,
+                  req.from.longitude
+                ) / 0.5 // Average speed of 30 km/h
+              ),
+            });
+          })
+        );
+        setNearbyRiders(nearbyRiders);
+      } catch (error) {
+        console.error("Error fetching riders:", error);
+        Alert.alert("Error", "Failed to fetch nearby riders.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNearbyRiders();
 
     return () => {
-      clearTimeout(timeout);
       spin.stop();
       pulse.stop();
     };
@@ -125,7 +196,7 @@ const RidePending: React.FC<IRidePending> = ({ onRiderSelect, onCancel }) => {
       </View>
       <FlatList
         className="p-4"
-        data={MockRiders}
+        data={nearbyRiders}
         keyExtractor={(rider) => rider.id}
         renderItem={({ item: rider }) => (
           <TouchableOpacity
@@ -142,11 +213,11 @@ const RidePending: React.FC<IRidePending> = ({ onRiderSelect, onCancel }) => {
               <View className="text-sm mt-1">
                 <Text>
                   from{" "}
-                  <Text className="font-bold">{from}</Text>
+                  <Text className="font-bold">{rider.from || ''}</Text>
                 </Text>
                 <Text>
                   to{" "}
-                  <Text className="font-bold">{to}</Text>
+                  <Text className="font-bold">{rider.to || ''}</Text>
                 </Text>
               </View>
             </View>

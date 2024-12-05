@@ -31,14 +31,14 @@ export const createRequest = async (req: Request, res: Response) => {
 };
 
 export const deleteRequest = async (req: Request, res: Response) => {
-  const { riderId } = req.body;
+  const { _id } = req.body;
   try {
-    const req = await request.findOne({ riderId });
+    const req = await request.findOne({ _id });
     if (!req) {
       res.status(404).send({ message: "Request not found" });
       return;
     }
-    await request.deleteOne({ riderId });
+    await request.deleteOne({ _id });
     res.status(200).send({ message: "request deleted" });
   } catch (err) {
     res.status(500).send({ error: err, message: "somethings wrong" });
@@ -46,9 +46,9 @@ export const deleteRequest = async (req: Request, res: Response) => {
 };
 
 export const matchRequest = async (req: Request, res: Response) => {
-  const { riderId, driverId } = req.body;
+  const { _id, driverId } = req.body;
   try {
-    const req = await request.findOne({ riderId });
+    const req = await request.findOne({ _id });
     if (!req) {
       res.status(404).send({ message: "Request not found" });
       return;
@@ -65,18 +65,18 @@ export const matchRequest = async (req: Request, res: Response) => {
 };
 
 export const cancelRequest = async (req: Request, res: Response) => {
-  const { riderId } = req.body;
+  const { _id } = req.body;
   try {
-    const req = await request.findOne({ riderId });
+    const req = await request.findOne({ _id });
     if (!req) {
       res.status(404).send({ message: "Request not found" });
       return;
     }
-    if (req.status === RequestStatus.CANCELLED) {
+    if (req.status === RequestStatus.CANCELED) {
       res.status(409).send({ message: "Request already cancelled" });
       return;
     }
-    await req.updateOne({ status: RequestStatus.CANCELLED });
+    await req.updateOne({ status: RequestStatus.CANCELED });
     res.status(200).send({ message: "Request cancelled" });
   } catch (err) {
     res.status(500).send({ error: err, message: "Something went wrong" });

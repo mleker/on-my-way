@@ -1,8 +1,6 @@
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import Request, { RequestStatus } from './models/request';
-import { Server } from 'socket.io';
 import Ride, { RideStatus } from './models/ride';
-import { request } from 'http';
 
 enum SocketEvents {
   CREATE_REQUEST = "create_request",
@@ -10,6 +8,7 @@ enum SocketEvents {
   DRIVER_ARRIVED = "driver_arrived",
   START_RIDE = "start_ride",
   FINISH_RIDE = "finish_ride",
+  CANSEL_RIDE = "cancel_ride",
 }
 
 enum IoEvents {
@@ -18,6 +17,7 @@ enum IoEvents {
   DRIVER_ARRIVED = "driver_arrived",
   RIDE_STARTED = "ride_started",
   RIDE_COMPLETED = "ride_completed",
+  RIDE_CANCELED = "ride_canceled",
 }
 
 export const onSocketConnection = (socket: Socket, io: Server) => {
@@ -40,7 +40,7 @@ export const onSocketConnection = (socket: Socket, io: Server) => {
   // Accept request logic
   socket.on(SocketEvents.ACCEPT_REQUEST, async (data) => {
     try {
-      const request = await Request.findById(data.requestId);
+      const request = await Request.findById(data._id);
       if (!request || request.status !== RequestStatus.PENDING) {
         socket.emit("error", { message: "Request not found or already matched" });
         return;
@@ -66,7 +66,7 @@ export const onSocketConnection = (socket: Socket, io: Server) => {
   // Driver arrived logic
   socket.on(SocketEvents.DRIVER_ARRIVED, async (data) => {
     try {
-      const ride = await Ride.findById(data.rideId);
+      const ride = await Ride.findById(data._id);
       if (!ride || ride.status !== RideStatus.PENDING) {
         socket.emit("error", { message: "Ride not created or not pending" });
         return;
@@ -75,7 +75,7 @@ export const onSocketConnection = (socket: Socket, io: Server) => {
       ride.driverId = data.driverId;
       await ride.save();
 
-      io.emit(IoEvents.DRIVER_ARRIVED, { rideId: ride._id });
+      io.emit(IoEvents.DRIVER_ARRIVED, ride);
     } catch (err) {
       socket.emit("error", { message: "Error updating ride status", error: err });
     }
@@ -84,7 +84,7 @@ export const onSocketConnection = (socket: Socket, io: Server) => {
   // Логика начала поездки
   socket.on(SocketEvents.START_RIDE, async (data) => {
     try {
-      const ride = await Ride.findById(data.rideId);
+      const ride = await Ride.findById(data._id);
       if (!ride || ride.status !== RideStatus.PENDING) {
         socket.emit("error", { message: "Ride not ready for starting" });
         return;
@@ -102,7 +102,7 @@ export const onSocketConnection = (socket: Socket, io: Server) => {
   // Finish ride logic
   socket.on(SocketEvents.FINISH_RIDE, async (data) => {
     try {
-      const ride = await Ride.findById(data.rideId);
+      const ride = await Ride.findById(data._id);
       if (!ride || ride.status !== RideStatus.IN_PROGRESS) {
         socket.emit("error", { message: "Ride not in progress" });
         return;
@@ -115,6 +115,25 @@ export const onSocketConnection = (socket: Socket, io: Server) => {
       io.emit(IoEvents.RIDE_COMPLETED, ride);
     } catch (err) {
       socket.emit("error", { message: "Error finishing ride", error: err });
+    }
+  });
+
+  // Cancel ride logic
+  socket.on(SocketEvents.CANSEL_RIDE, async (data) => {
+    try {
+      const ride = await Ride.findById(data._id);
+      if (!ride || ride.status !== RideStatus.PENDING) {
+        socket.emit("error", { message: "Ride not in progress" });
+        return;
+      }
+
+      ride.status = RideStatus.PENDING;
+      ride.riderId = null;
+      await ride.save();
+
+      io.emit(IoEvents.RIDE_CANCELED, ride);
+    } catch (err) {
+      socket.emit("error", { message: "Error canceling ride", error: err });
     }
   });
 

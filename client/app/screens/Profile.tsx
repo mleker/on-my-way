@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import { useAuth } from "../context/AuthContext"; // Assuming you have AuthContext for managing user state
+import { useAuth } from "../context/AuthContext";
 
 const Profile: React.FC = () => {
-  const { authState, onLogout } = useAuth(); // Use auth context for token and logout
+  const { authState, onLogout, onProfile } = useAuth();
   const [userData, setUserData] = useState({
     name: "",
-    surname: "",
     email: "",
-    gender: "",
+    phone: "",
     vehicleType: "",
     licenseNumber: "",
   });
@@ -17,34 +16,19 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false); // Track loading state
 
   useEffect(() => {
-    fetchProfile();
+    const profile = async () => {
+      const token = authState?.token;
+      const res = await onProfile!(token as string);
+      setUserData({
+        name: res.user.name,
+        email: res.user.email,
+        phone: res.user.phone,
+        vehicleType: res.user.vehicleType,
+        licenseNumber: res.user.licenseNum,
+      });
+    };
+    profile();
   }, []);
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const token = authState?.token; // Use token from context
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BASE_URL}/profile`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setUserData(data.user);
-      } else {
-        Alert.alert("Error", data.message || "Failed to fetch profile");
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-      Alert.alert("Error", "Something went wrong while fetching your profile.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleUpdateProfile = async () => {
     try {
@@ -113,7 +97,7 @@ const Profile: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await onLogout?.(); // Logout using auth context
+      await onLogout?.();
       Alert.alert("Success", "You have been logged out.");
     } catch (error) {
       console.error("Error logging out:", error);
@@ -128,16 +112,11 @@ const Profile: React.FC = () => {
         <Text className="text-center mb-4">Loading...</Text>
       ) : (
         <>
+          {/* <Text>{user.name}</Text> */}
           <TextInput
             placeholder="Name"
             value={userData.name}
             onChangeText={(text) => setUserData({ ...userData, name: text })}
-            className="border-b border-gray-400 mb-4 py-2"
-          />
-          <TextInput
-            placeholder="Surname"
-            value={userData.surname}
-            onChangeText={(text) => setUserData({ ...userData, surname: text })}
             className="border-b border-gray-400 mb-4 py-2"
           />
           <TextInput
@@ -147,9 +126,9 @@ const Profile: React.FC = () => {
             className="border-b border-gray-400 mb-4 py-2 bg-gray-200"
           />
           <TextInput
-            placeholder="Gender"
-            value={userData.gender}
-            onChangeText={(text) => setUserData({ ...userData, gender: text })}
+            placeholder="Phone"
+            value={userData.phone}
+            onChangeText={(text) => setUserData({ ...userData, phone: text })}
             className="border-b border-gray-400 mb-4 py-2"
           />
           <TextInput

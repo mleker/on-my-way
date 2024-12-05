@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export enum RequestStatus {
   PENDING = "pending",
   MATCHED = "matched",
-  CANCELLED = "cancelled",
+  CANCELED = "canceled",
 }
 
 const requestSchema = new mongoose.Schema({
@@ -19,7 +19,7 @@ const requestSchema = new mongoose.Schema({
     latitude: { type: Number, required: true }
   },
   startTime: { type: Date, default: Date.now },
-  status: { type: String, enum: [RequestStatus.PENDING, RequestStatus.MATCHED, RequestStatus.CANCELLED], default: RequestStatus.PENDING },
+  status: { type: String, enum: [RequestStatus.PENDING, RequestStatus.MATCHED, RequestStatus.CANCELED], default: RequestStatus.PENDING },
   estimatedFare: { type: Number }
 });
 

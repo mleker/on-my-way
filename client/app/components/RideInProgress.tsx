@@ -10,14 +10,16 @@ import MapViewDirections from "react-native-maps-directions";
 import { IMarker } from "../screens/RequestRide";
 
 interface IRideInProgress {
-  driver?: IDriver;
-  rider?: IRider;
-  onFinish: () => void;
+  driver?: IDriver | null;
+  rider?: IRider | null;
+  viewedByDriver: boolean;
+  onFinish?: () => void;
 }
 
 const RideInProgress: React.FC<IRideInProgress> = ({
-  driver,
-  rider,
+  driver = null,
+  rider = null,
+  viewedByDriver,
   onFinish,
 }) => {
   const [location, setLocation] = useState<any>(null);
@@ -73,16 +75,6 @@ const RideInProgress: React.FC<IRideInProgress> = ({
 
     fetchLocation();
   }, []);
-
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (driver) {
-      timeout = setTimeout(() => {
-        onFinish();
-      }, 5000);
-    }
-    return () => clearTimeout(timeout);
-  }, [driver]);
 
   const calculateDistance = (
     lat1: number,
@@ -189,7 +181,7 @@ const RideInProgress: React.FC<IRideInProgress> = ({
       </View>
 
       {/* Action Buttons */}
-      {rider && (
+      {viewedByDriver && onFinish && (
         <View className="flex-row justify-between m-4 space-x-4">
           <TouchableOpacity
             className="flex-1 bg-black p-4 items-center"

@@ -1,10 +1,13 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { ParamListBase } from "@react-navigation/native";
+import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";
 import { TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons"; // Import an icon library
-import { Text, TouchableOpacity } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/Ionicons";
+import { RoutesEnum } from './@types/routes';
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import CreateRide from "./screens/createride";
+import AddressSearch from "./screens/AddressSearch";
+import CreateRide from './screens/CreateRide';
 import Landing from "./screens/Landing";
 import Login from "./screens/Login";
 import Profile from "./screens/Profile";
@@ -12,8 +15,8 @@ import RequestRide from "./screens/RequestRide";
 import RequestStatus from "./screens/RequestStatus";
 import RideStatus from "./screens/RideStatus";
 import SignUp from "./screens/SignUp";
-import AddressSearch from "./screens/AddressSearch";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SocketProvider } from './context/SocketContext';
+import { RideRequestProvider } from './services/ride-request';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,7 +24,11 @@ const App = () => {
   return (
     <AuthProvider>
       <SafeAreaProvider>
-        <Layout />
+        <SocketProvider>
+          <RideRequestProvider>
+            <Layout />
+          </RideRequestProvider>
+        </SocketProvider>
       </SafeAreaProvider>
     </AuthProvider>
   );
@@ -31,11 +38,11 @@ const Layout = () => {
   const { authState } = useAuth();
 
   // Updated header to show profile icon
-  const renderHeaderRight = (navigation: any) => {
+  const renderHeaderRight = (navigation: NativeStackNavigationProp<ParamListBase>) => {
     return (
-      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+      <TouchableOpacity onPress={() => navigation.navigate(RoutesEnum.PROFILE)}>
         <Icon
-          name="person-circle-outline" // Profile icon from Ionicons
+          name="person-circle-outline"
           size={28}
           color="white"
           style={{ marginRight: 15 }}

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { StackParams } from "../@types/stack";
-import { RoutesEnum } from "../@types/routes";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
-import { IMarker } from "./RequestRide";
+import React, { useEffect, useState } from "react";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
+import { RoutesEnum } from "../@types/routes";
+import { StackParams } from "../@types/stack";
+import { IMarker } from "./RequestRide";
+import { createRide } from '../services/api-service';
+import { useAuth } from '../context/AuthContext';
 
 interface IRegion {
   latitude: number;
@@ -23,6 +25,7 @@ const initReg = {
 };
 
 const CreateRide: React.FC = () => {
+  const { authState } = useAuth();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [reg, setReg] = useState<IRegion>(initReg);
@@ -35,7 +38,23 @@ const CreateRide: React.FC = () => {
   const navigation = useNavigation<NavigationProp<StackParams>>();
 
   const handleCreateRide = () => {
-    if (from && to) {
+    const userId = authState?.userId;
+    
+    if (from && to && userId && fromMarker && toMarker) {
+      const user = 
+      createRide({
+        driverId: userId,
+        from: {
+          name: from,
+          latitude: fromMarker?.latitude || 0,
+          longitude: fromMarker?.longitude || 0,
+        },
+        to: {
+          name: to,
+          latitude: toMarker?.latitude || 0,
+          longitude: toMarker?.longitude || 0,
+        }
+      });
       navigation.navigate(RoutesEnum.RIDE_STATUS, { from, to, fromMarker, toMarker });
     } else {
       alert("Please enter both From and To locations");

@@ -5,7 +5,7 @@ import {
 } from "@react-navigation/native";
 import React, { useState } from "react";
 import { Alert, View } from "react-native";
-import { IRoute, RideStatusEnum } from "../@types/ride";
+import { RideStatusEnum } from "../@types/ride";
 import { IRider } from "../@types/rider";
 import { RoutesEnum } from "../@types/routes";
 import { StackParams } from "../@types/stack";
@@ -35,15 +35,14 @@ const RideStatus: React.FC = () => {
 
   return (
     <View className="flex-1 bg-white">
-      {rideStatus === RideStatusEnum.PENDING ? (
+      {rideStatus === RideStatusEnum.PENDING && !selectedRider ? (
         <RidePending
           onRiderSelect={(rider: IRider) => {
             setSelectedRider(rider);
-            setRideStatus(RideStatusEnum.PICK_UP);
           }}
           onCancel={handleCancelRide}
         />
-      ) : rideStatus === RideStatusEnum.PICK_UP && selectedRider ? (
+      ) : rideStatus === RideStatusEnum.PENDING && selectedRider ? (
         <RidePickUp
           onCancel={handleCancelRide}
           onStart={() => setRideStatus(RideStatusEnum.IN_PROGRESS)}
@@ -51,7 +50,7 @@ const RideStatus: React.FC = () => {
           riderLoc={fromMarker}
         />
       ) : rideStatus === RideStatusEnum.IN_PROGRESS && selectedRider ? (
-        <RideInProgress rider={selectedRider} onFinish={handleFinishRide} />
+        <RideInProgress rider={selectedRider} viewedByDriver={true} onFinish={handleFinishRide} />
       ) : null}
     </View>
   );

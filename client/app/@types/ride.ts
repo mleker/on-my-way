@@ -1,6 +1,7 @@
+import { ILocation } from './location';
+
 export enum RideStatusEnum {
   PENDING = 'pending',
-  PICK_UP = 'pick_up',
   IN_PROGRESS = 'in_progress',
   FINISHED = 'finished'
 }
@@ -8,10 +9,10 @@ export enum RideStatusEnum {
 export interface IRide {
   id: string;
   driverId: string;
-  riderId: string;
+  riderId?: string;
   status: RideStatusEnum;
-  pickup: string;
-  dropOff: string;
+  from: ILocation;
+  to: ILocation;
   time: string;
 }
 

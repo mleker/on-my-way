@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
 
-interface IRequestPending {
-  onDriverMatched: () => void;
+interface RequestPendingProps {
   onCancel: () => void;
 }
 
-const RequestPending: React.FC<IRequestPending> = ({ onDriverMatched, onCancel }) => {
+const RequestPending: React.FC<RequestPendingProps> = ({ onCancel }) => {
   const spinAnim = useRef(new Animated.Value(0)).current; // Animation state
   const scaleAnim = useRef(new Animated.Value(1)).current; // Animation state for pulsing
 
@@ -39,19 +38,11 @@ const RequestPending: React.FC<IRequestPending> = ({ onDriverMatched, onCancel }
     spin.start();
     scale.start();
 
-    // Timeout for driver matching
-    const timeoutId = setTimeout(() => {
-      onDriverMatched();
-      spin.stop();
-      scale.stop();
-    }, 5000);
-
     return () => {
-      clearTimeout(timeoutId);
       spin.stop();
       scale.stop();
     };
-  }, [onDriverMatched, spinAnim, scaleAnim]);
+  }, []);
 
   // Interpolating spin animation to rotate
   const spin = spinAnim.interpolate({
