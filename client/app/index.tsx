@@ -3,16 +3,16 @@ import React from "react";
 import Icon from "react-native-vector-icons/Ionicons"; // Import an icon library
 import { TouchableOpacity } from "react-native";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import CreateRide from "./screens/CreateRide";
 import Landing from "./screens/Landing";
 import Login from "./screens/Login";
 import Profile from "./screens/Profile";
 import RequestRide from "./screens/RequestRide";
 import RequestStatus from "./screens/RequestStatus";
-import RideStatus from "./screens/RideStatus";
 import SignUp from "./screens/SignUp";
 import AddressSearch from "./screens/AddressSearch";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import RideStatus from './screens/RideStatus';
+import CreateRide from './screens/CreateRide';
 
 const Stack = createNativeStackNavigator();
 

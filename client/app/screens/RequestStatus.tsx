@@ -29,9 +29,8 @@ const RequestStatus: React.FC = () => {
   };
 
   const handleDriverMatched = () => {
-    setRequestStatus(RequestStatusEnum.PICK_UP);
-    Alert.alert("Request Accepted", "Driver has accepted your ride request.");
     setDriver(MockDrivers[1]);
+    Alert.alert("Request Accepted", "Driver has accepted your ride request.");
   };
 
   const handleFinishRide = () => {
@@ -50,7 +49,7 @@ const RequestStatus: React.FC = () => {
 
   return (
     <View className="flex-1 bg-white">
-      {requestStatus === RequestStatusEnum.PENDING && !driver  ? (
+      {requestStatus === RequestStatusEnum.PENDING && !driver ? (
         <RequestPending
           onDriverMatched={handleDriverMatched}
           onCancel={handleCancelRequest}
@@ -64,7 +63,8 @@ const RequestStatus: React.FC = () => {
         />
       ) : requestStatus === RequestStatusEnum.MATCHED && driver ? (
         <RideInProgress onFinish={handleFinishRide} driver={driver} />
-      ) : null}
+      ) :
+        null}
     </View>
   );
 };

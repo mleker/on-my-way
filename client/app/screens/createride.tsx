@@ -7,13 +7,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import { IMarker } from "./RequestRide";
 import MapViewDirections from "react-native-maps-directions";
-
-interface IRegion {
-  latitude: number;
-  longitude: number;
-  latitudeDelta: number;
-  longitudeDelta: number;
-}
+import { IRegion } from '../@types/region';
 
 const initReg = {
   latitude: 51.1657,

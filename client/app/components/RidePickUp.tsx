@@ -7,7 +7,7 @@ import { IRider } from "../@types/rider";
 import { IDriver } from "../@types/driver";
 import { IMarker } from "../screens/RequestRide";
 import MapViewDirections from "react-native-maps-directions";
-import { IRegion } from "./Map";
+import { IRegion } from '../@types/region';
 
 interface IRidePickUp {
   rider?: IRider;
