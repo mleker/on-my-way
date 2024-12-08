@@ -12,7 +12,6 @@ A ride-sharing application built to connect drivers and riders efficiently. This
 - **Driver Matching**: Drivers can view nearby ride requests and accept them.
 - **Real-Time Updates**: Real-time ride status updates using WebSockets.
 - **Profile Management**: Users can update their personal information and vehicle details.
-- **Responsive UI**: Optimized for both mobile and web platforms.
 
 ---
 
